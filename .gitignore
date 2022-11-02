@@ -1,3 +1,5 @@
 bin
 obj
-Api-at-shop/appsettings.json
+/.vs
+api-at-shop/appsettings.json
+
