@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime;
 using System.Threading.Tasks;
+using api_at_shop.Model;
+using api_at_shop.Services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -16,47 +18,30 @@ namespace api_at_shop.Controllers
     [Route("api/[controller]")]
     public class ProductsController : Controller
     {
+        private IProductApiService ProductApiService;
 
-        static HttpClient client = new HttpClient();
-
-            // GET: api/values
-            [HttpGet]
-        public async Task<string> Get()
+        public ProductsController(IProductApiService productApiService)
         {
-            //await RunAsync();
-            var test = await GetProductAsync("");
-            return test;
+            ProductApiService = productApiService;
         }
 
-        static async Task<string> GetProductAsync(string path)
+        // GET: api/values
+        [HttpGet]
+        public async Task<IEnumerable<IProduct>> Get()
         {
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzN2Q0YmQzMDM1ZmUxMWU5YTgwM2FiN2VlYjNjY2M5NyIsImp0aSI6IjM2MmJiY2M1ODQ5NWQ1ZjFjODZlNTJlMWEzNzU2YWIyYjE1OWU2NjQxMTU5ZTQ1MTFiMWU5ZGQ5ZjNiMDc4ZDc1ZWIyNGU5MmE3YjBkNmYzIiwiaWF0IjoxNjY1NzU0Nzc0LjIyNTMyOSwibmJmIjoxNjY1NzU0Nzc0LjIyNTMzMywiZXhwIjoxNjk3MjkwNzc0LjE3MjkyLCJzdWIiOiIxMDQwNDk4MSIsInNjb3BlcyI6WyJzaG9wcy5tYW5hZ2UiLCJzaG9wcy5yZWFkIiwiY2F0YWxvZy5yZWFkIiwib3JkZXJzLnJlYWQiLCJvcmRlcnMud3JpdGUiLCJwcm9kdWN0cy5yZWFkIiwicHJvZHVjdHMud3JpdGUiLCJ3ZWJob29rcy5yZWFkIiwid2ViaG9va3Mud3JpdGUiLCJ1cGxvYWRzLnJlYWQiLCJ1cGxvYWRzLndyaXRlIiwicHJpbnRfcHJvdmlkZXJzLnJlYWQiXX0.AmRSNVvODyIm5J4-YaddIGKNwR8ixW1o5dsYIQkn9VZfLy1PFFizIveipU50A6JyN06eVy5yCcfkDewLtL8");
+            //await RunAsync();
 
-            using HttpResponseMessage res = await client.GetAsync("https://api.printify.com/v1/shops/5374613/products.json");
-            res.EnsureSuccessStatusCode();
-            string responseBody = await res.Content.ReadAsStringAsync();
-            return responseBody;
+            var products = await ProductApiService.GetProductsAsync();
+            return null;
+        }
 
-            //string product = "";
-            //client.DefaultRequestHeaders.Authorization =
-            //new AuthenticationHeaderValue("Bearer",
-            //"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzN2Q0YmQzMDM1ZmUxMWU5YTgwM2FiN2VlYjNjY2M5NyIsImp0aSI6IjM2MmJiY2M1ODQ5NWQ1ZjFjODZlNTJlMWEzNzU2YWIyYjE1OWU2NjQxMTU5ZTQ1MTFiMWU5ZGQ5ZjNiMDc4ZDc1ZWIyNGU5MmE3YjBkNmYzIiwiaWF0IjoxNjY1NzU0Nzc0LjIyNTMyOSwibmJmIjoxNjY1NzU0Nzc0LjIyNTMzMywiZXhwIjoxNjk3MjkwNzc0LjE3MjkyLCJzdWIiOiIxMDQwNDk4MSIsInNjb3BlcyI6WyJzaG9wcy5tYW5hZ2UiLCJzaG9wcy5yZWFkIiwiY2F0YWxvZy5yZWFkIiwib3JkZXJzLnJlYWQiLCJvcmRlcnMud3JpdGUiLCJwcm9kdWN0cy5yZWFkIiwicHJvZHVjdHMud3JpdGUiLCJ3ZWJob29rcy5yZWFkIiwid2ViaG9va3Mud3JpdGUiLCJ1cGxvYWRzLnJlYWQiLCJ1cGxvYWRzLndyaXRlIiwicHJpbnRfcHJvdmlkZXJzLnJlYWQiXX0.AmRSNVvODyIm5J4-YaddIGKNwR8ixW1o5dsYIQkn9VZfLy1PFFizIveipU50A6JyN06eVy5yCcfkDewLtL8");
-            //HttpResponseMessage response = await client.GetAsync("https://api.printify.com/v1/shops/5374613/products/");
-            //if (response.IsSuccessStatusCode)
-            //{
-            //    product = await response.Content.ReadAsAsync<string>();
-            //}
-            //return product;
-        }   
-
+      
         // GET api/values/5
         [HttpGet("{id}")]
-        public async Task<string> Get(int id)
+        public async Task<IProduct> Get(int id)
         {
-            var test = await GetProductAsync("");
-            return test;
+            var products = await ProductApiService.GetProductsAsync();
+            return null;
         }
 
         // POST api/values
