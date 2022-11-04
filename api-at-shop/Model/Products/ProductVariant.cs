@@ -1,7 +1,7 @@
 ﻿using System;
-namespace api_at_shop.DTO.Printify.Data.Variant
+namespace api_at_shop.Model.Products
 {
-    public class PrintifyVariants
+    public class ProductVariant
     {
         public int ID { get; set; }
         public string? sku { get; set; }

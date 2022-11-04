@@ -14,6 +14,12 @@ namespace api_at_shop.Model
         public string? Updated_At { get; set; }
         public bool Visible { get; set; }
         public bool Is_Locked { get; set; }
+        public string? FeaturedImageSrc { get; set; }
+        public List<ProductImage> Images { get; set; }
+        public List<ProductImage> DefaultImages { get; set; }
+        public List<ProductVariant> Variants { get; set; }
+        public List<ProductOptions> Options { get; set; }
+        public List<ProductSize> AvailableSizes { get; set; }
     }
 }
 

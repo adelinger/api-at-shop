@@ -11,7 +11,7 @@ namespace api_at_shop.DTO.Printify.Data
         public string? Title { get; set; }
         public string? Description { get; set; }
         public List<string>? Tags { get; set; }
-        public List<PrinfitfyOptions>? Options { get; set; }
+        public List<PrintifyOptions>? Options { get; set; }
         public List<PrintifyVariants>? Variants { get; set; }
         public List<PrintifyImages>? Images { get; set; }
         public string? Created_At { get; set; }

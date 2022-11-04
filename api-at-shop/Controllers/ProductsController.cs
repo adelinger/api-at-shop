@@ -29,7 +29,6 @@ namespace api_at_shop.Controllers
         [HttpGet]
         public async Task<ActionResult<IProduct>> Get()
         {
-            //await RunAsync();
             try
             {
                 var products = await ProductApiService.GetProductsAsync();
@@ -45,10 +44,19 @@ namespace api_at_shop.Controllers
       
         // GET api/values/5
         [HttpGet("{id}")]
-        public async Task<IProduct> Get(int id)
+        public async Task<ActionResult<IProduct>> Get(string id)
         {
-            var products = await ProductApiService.GetProductsAsync();
-            return null;
+            try
+            {
+                var product = await ProductApiService.GetProductAsync(id);
+
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response { Message = ex.Message, Success = false });
+            }
+            
         }
 
         // POST api/values
