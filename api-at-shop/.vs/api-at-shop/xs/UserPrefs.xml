@@ -1,0 +1,50 @@
+﻿<Properties StartupConfiguration="{0C4A772F-0EE6-43C3-8D34-36A28EEEC77B}|Default">
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.Workbench ActiveDocument="Model/Products/Product.cs">
+    <Files>
+      <File FileName="Controllers/ProductsController.cs" Line="1" Column="1" />
+      <File FileName="Services/ProductServices/PrintifyService.cs" Line="1" Column="1" />
+      <File FileName="Model/Product.cs" Line="21" Column="1" />
+      <File FileName="Model/IProduct.cs" Line="20" Column="39" />
+      <File FileName="Model/Products/IData.cs" Line="14" Column="45" />
+      <File FileName="DTO/Printify/Data/Option/Values/Values.cs" Line="1" Column="1" />
+      <File FileName="DTO/Printify/Data/Image/ImagesDTO.cs" Line="5" Column="6" />
+      <File FileName="DTO/Printify/Data/Data.cs" Line="16" Column="27" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="api-at-shop" expanded="True">
+            <Node name="api-at-shop" expanded="True">
+              <Node name="Controllers" expanded="True" />
+              <Node name="DTO" expanded="True">
+                <Node name="Printify" expanded="True">
+                  <Node name="Data" expanded="True">
+                    <Node name="Image" expanded="True" />
+                  </Node>
+                </Node>
+              </Node>
+              <Node name="Model" expanded="True">
+                <Node name="Products" expanded="True">
+                  <Node name="Product.cs" selected="True" />
+                </Node>
+              </Node>
+              <Node name="Services" expanded="True">
+                <Node name="ProductServices" expanded="True" />
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State />
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.api-at-shop PreferredExecutionTarget="/Applications/Google Chrome.app" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+</Properties>

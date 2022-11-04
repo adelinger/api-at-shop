@@ -27,12 +27,19 @@ namespace api_at_shop.Controllers
 
         // GET: api/values
         [HttpGet]
-        public async Task<IEnumerable<IProduct>> Get()
+        public async Task<ActionResult<IProduct>> Get()
         {
             //await RunAsync();
+            try
+            {
+                var products = await ProductApiService.GetProductsAsync();
+                return Ok(products);
 
-            var products = await ProductApiService.GetProductsAsync();
-            return null;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response { Message = ex.Message, Success = false });
+            }
         }
 
       
