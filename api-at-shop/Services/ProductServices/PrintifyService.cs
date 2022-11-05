@@ -62,47 +62,54 @@ namespace api_at_shop.Services.printify
 
         public async Task<List<IProduct>> GetProductsAsync()
         {
-           
-            using HttpResponseMessage res = await Client.GetAsync(BASE_URL + "/products.json");
-            res.EnsureSuccessStatusCode();
-            var product = await res.Content.ReadFromJsonAsync<PrintifyProductDTO>();
-
-            var mapped = new List<IProduct>();
-
-            foreach (var (item, possibleOptions) in from item in product?.Data
-                                                    let possibleOptions = new List<List<int>>()
-                                                    select (item, possibleOptions))
+            try
             {
-                possibleOptions.AddRange(from variant in item.Variants
-                                         select variant.Options);
-                var availableOptions = GetAvailableOptions(item);
-                var availableColors = availableOptions.Colors;
-               
+                using HttpResponseMessage res = await Client.GetAsync(BASE_URL + "/products.json");
+                res.EnsureSuccessStatusCode();
+                var product = await res.Content.ReadFromJsonAsync<PrintifyProductDTO>();
 
-                var defaultImages = GetDefaultImages(item);
+                var mapped = new List<IProduct>();
 
-                mapped.Add(new Product
+                foreach (var (item, possibleOptions) in from item in product?.Data
+                                                        let possibleOptions = new List<List<int>>()
+                                                        select (item, possibleOptions))
                 {
-                    ID = item.ID,
-                    Created_At = item.Created_At,
-                    Description = item.Description,
-                    Is_Locked = item.Is_Locked,
-                    Tags = item.Tags,
-                    Title = item.Title,
-                    Updated_At = item.Updated_At,
-                    Visible = item.Visible,
-                    AvailableColors = availableColors,
-                    AvailableSizes = availableOptions.Sizes,
-                    FeaturedImageSrc = item.Images.FirstOrDefault(e => e.Is_Default == true).Src,
-                    Images = GetMappedImages(item),
-                    DefaultImages = defaultImages,
-                    Variants = GetMappedVariants(item.Variants),
-                    Options = GetMappedOptions(item.Options),
-                    
-                });
-            }
+                    possibleOptions.AddRange(from variant in item.Variants
+                                             select variant.Options);
+                    var availableOptions = GetAvailableOptions(item);
+                    var availableColors = availableOptions.Colors;
 
-            return mapped;
+
+                    var defaultImages = GetDefaultImages(item);
+
+                    mapped.Add(new Product
+                    {
+                        ID = item.ID,
+                        Created_At = item.Created_At,
+                        Description = item.Description,
+                        Is_Locked = item.Is_Locked,
+                        Tags = item.Tags,
+                        Title = item.Title,
+                        Updated_At = item.Updated_At,
+                        Visible = item.Visible,
+                        AvailableColors = availableColors,
+                        AvailableSizes = availableOptions.Sizes,
+                        FeaturedImageSrc = item.Images?.FirstOrDefault(e => e.Is_Default == true)?.Src,
+                        Images = GetMappedImages(item),
+                        DefaultImages = defaultImages,
+                        Variants = GetMappedVariants(item.Variants),
+                        Options = GetMappedOptions(item.Options),
+
+                    });
+                }
+
+                return mapped;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            
         }
 
         public Task<IProduct> UpdateProductAsync(IProduct product)
@@ -202,26 +209,51 @@ namespace api_at_shop.Services.printify
 
         private List<ProductImage> GetMappedImages(PrintifyData data)
         {
-            var mapped = new List<ProductImage>();
-
-            foreach (var image in data.Images)
+            try
             {
-                //TODO: add imageColorID property to images
-                foreach (var variant in data.Variants)
-                {
+                var mapped = new List<ProductImage>();
 
+
+                foreach (var image in data.Images)
+                {
+                    var match = data.Variants?.FirstOrDefault(e => e.ID == image.Variant_Ids?.FirstOrDefault())?.Options;
+                    var colors = data.Options?.Where(e => e.Name == "Colors").FirstOrDefault();
+                    var printifyColor = new PrintifyValues();
+                    foreach (var item in match)
+                    {
+                        var find = colors?.Values?.Where(e => e.ID == item);
+                        if(find != null && find.Any())
+                        {
+                            printifyColor = find.FirstOrDefault();
+                            break;
+                        }
+                    }
+
+                    var colorMatch = new ProductColor
+                    {
+                        Colors = printifyColor?.Colors,
+                        ID = printifyColor.ID,
+                        Title = printifyColor?.Title,
+                    };
+
+                    mapped.Add(new ProductImage
+                    {
+                        Is_Default = image.Is_Default,
+                        Is_Selected_For_Publishing = image.Is_Selected_For_Publishing,
+                        Position = image.Position,
+                        Src = image.Src,
+                        Variant_Ids = image.Variant_Ids,
+                        ColorID = colorMatch.ID
+                    });
                 }
-                mapped.Add(new ProductImage
-                {
-                    Is_Default = image.Is_Default,
-                    Is_Selected_For_Publishing = image.Is_Selected_For_Publishing,
-                    Position = image.Position,
-                    Src = image.Src,
-                    Variant_Ids = image.Variant_Ids
-                });
-            }
 
-            return mapped;
+                return mapped;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+           
         }
 
         private List<ProductOptions> GetMappedOptions(List<PrintifyOptions> printifyOptions)

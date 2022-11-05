@@ -1,19 +1,20 @@
 ﻿<Properties StartupConfiguration="{0C4A772F-0EE6-43C3-8D34-36A28EEEC77B}|Default">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workbench ActiveDocument="Model/Products/Product.cs">
+  <MonoDevelop.Ide.ItemProperties.api-at-shop PreferredExecutionTarget="/Applications/Google Chrome.app" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Services/ProductServices/PrintifyService.cs">
     <Files>
-      <File FileName="Controllers/ProductsController.cs" Line="1" Column="1" />
-      <File FileName="Services/ProductServices/PrintifyService.cs" Line="94" Column="37" />
-      <File FileName="DTO/Printify/Data/Data.cs" Line="14" Column="33" />
-      <File FileName="Model/Products/Product.cs" Line="19" Column="1" />
-      <File FileName="Model/Products/IProduct.cs" Line="19" Column="39" />
+      <File FileName="Services/ProductServices/PrintifyService.cs" Line="222" Column="48" IsPinned="True" />
+      <File FileName="Controllers/ProductsController.cs" Line="39" Column="14" />
+      <File FileName="Model/Products/Product.cs" Line="22" Column="60" />
+      <File FileName="Model/Products/IProduct.cs" Line="22" Column="59" />
       <File FileName="Services/ProductServices/IProductApiService.cs" Line="8" Column="35" />
-      <File FileName="DTO/Printify/Data/Variant/PrintifyVariants.cs" Line="16" Column="6" />
-      <File FileName="DTO/Printify/Data/Option/PrintifyOptions.cs" Line="4" Column="18" />
-      <File FileName="Model/Products/ProductImages.cs" Line="10" Column="61" />
+      <File FileName="DTO/Printify/Data/PrintifyData.cs" Line="21" Column="1" />
+      <File FileName="Model/Products/ProductVariant.cs" Line="11" Column="31" />
+      <File FileName="DTO/Printify/Data/Variant/PrintifyVariants.cs" Line="11" Column="31" />
+      <File FileName="Model/Products/ProductOptions.cs" Line="13" Column="53" />
+      <File FileName="DTO/Printify/Data/Option/PrintifyOptions.cs" Line="7" Column="42" />
+      <File FileName="Model/Products/ProductSize.cs" Line="9" Column="6" />
+      <File FileName="Model/Products/ProductColor.cs" Line="8" Column="50" />
+      <File FileName="Model/Products/ProductImage.cs" Line="11" Column="41" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -24,7 +25,9 @@
               <Node name="DTO" expanded="True">
                 <Node name="Printify" expanded="True">
                   <Node name="Data" expanded="True">
-                    <Node name="Option" expanded="True" />
+                    <Node name="Option" expanded="True">
+                      <Node name="Values" expanded="True" />
+                    </Node>
                     <Node name="Variant" expanded="True" />
                   </Node>
                 </Node>
@@ -44,7 +47,10 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.ItemProperties.api-at-shop PreferredExecutionTarget="/Applications/Google Chrome.app" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>
