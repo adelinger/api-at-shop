@@ -57,6 +57,7 @@ namespace api_at_shop.Services.printify
                 DefaultImages = GetDefaultImages(product),
                 AvailableColors = availableOptions.Colors,
                 AvailableSizes = availableOptions.Sizes,
+                FeaturedImageSrc = product.Images?.FirstOrDefault(e => e.Is_Default == true)?.Src,
             };
         }
 
