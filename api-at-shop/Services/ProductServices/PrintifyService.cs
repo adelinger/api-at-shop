@@ -58,10 +58,11 @@ namespace api_at_shop.Services.printify
                 AvailableColors = availableOptions.Colors,
                 AvailableSizes = availableOptions.Sizes,
                 FeaturedImageSrc = product.Images?.FirstOrDefault(e => e.Is_Default == true)?.Src,
+                IsDiscounted = false
             };
         }
 
-        public async Task<List<IProduct>> GetProductsAsync()
+        public async Task<List<IProduct>> GetProductsAsync(string categoryFilter="", string searchFilter="")
         {
             try
             {
@@ -71,7 +72,16 @@ namespace api_at_shop.Services.printify
 
                 var mapped = new List<IProduct>();
 
-                foreach (var (item, possibleOptions) in from item in product?.Data
+                var filtered = new List<PrintifyData>();
+                if (!string.IsNullOrEmpty(categoryFilter))
+                {
+                    var tag = getTag(categoryFilter);
+
+                    filtered = product.Data.Where(item => item.Tags.Contains(tag)).ToList();
+                }
+                
+
+                foreach (var (item, possibleOptions) in from item in filtered.Any() ? filtered : product?.Data
                                                         let possibleOptions = new List<List<int>>()
                                                         select (item, possibleOptions))
                 {
@@ -82,6 +92,7 @@ namespace api_at_shop.Services.printify
 
 
                     var defaultImages = GetDefaultImages(item);
+
 
                     mapped.Add(new Product
                     {
@@ -100,8 +111,14 @@ namespace api_at_shop.Services.printify
                         DefaultImages = defaultImages,
                         Variants = GetMappedVariants(item.Variants),
                         Options = GetMappedOptions(item.Options),
-
+                        IsDiscounted = false
                     });
+                }
+
+                if (!string.IsNullOrEmpty(searchFilter))
+                {
+                    var filteredList = mapped.Where(item => item.Title.ToLower().Contains(searchFilter.ToLower()));
+                    return filteredList.ToList();
                 }
 
                 return mapped;
@@ -272,6 +289,32 @@ namespace api_at_shop.Services.printify
             }
 
             return mapped;
+        }
+
+        private string getTag(string filter)
+        {
+            List<string> tags;
+
+            if (filter == "mens-clothing")
+            {
+                return "Men's Clothing";
+            }
+            if (filter == "womens-clothing")
+            {
+                return "Women's Clothing";
+            }
+
+            if (filter == "accessories")
+            {
+              
+                return "Accessories";
+            }
+            if(filter == "home-and-living")
+            {
+                return "Home & Living";
+            }
+
+            return "";
         }
 
         private List<ProductVariant> GetMappedVariants(List<PrintifyVariants> printifyVariant)

@@ -27,11 +27,11 @@ namespace api_at_shop.Controllers
 
         // GET: api/values
         [HttpGet]
-        public async Task<ActionResult<IProduct>> Get()
+        public async Task<ActionResult<IProduct>> Get(string categoryFilter, string searchFilter)
         {
             try
             {
-                var products = await ProductApiService.GetProductsAsync();
+                var products = await ProductApiService.GetProductsAsync(categoryFilter, searchFilter);
                 return Ok(products);
 
             }
@@ -44,7 +44,7 @@ namespace api_at_shop.Controllers
       
         // GET api/values/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<IProduct>> Get(string id)
+        public async Task<ActionResult<IProduct>> GetProduct(string id)
         {
             try
             {
