@@ -27,11 +27,11 @@ namespace api_at_shop.Controllers
 
         // GET: api/values
         [HttpGet]
-        public async Task<ActionResult<IProduct>> Get(string categoryFilter, string searchFilter)
+        public async Task<ActionResult<IProduct>> Get(string categoryFilter, string searchFilter, string sortOrder, int? limit = null)
         {
             try
             {
-                var products = await ProductApiService.GetProductsAsync(categoryFilter, searchFilter);
+                var products = await ProductApiService.GetProductsAsync(categoryFilter, searchFilter, limit, sortOrder);
                 return Ok(products);
 
             }

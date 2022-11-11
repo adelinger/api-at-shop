@@ -41,28 +41,12 @@ namespace api_at_shop.Services.printify
             res.EnsureSuccessStatusCode();
             var product = await res.Content.ReadFromJsonAsync<PrintifyData>();
             var availableOptions = GetAvailableOptions(product);
-            return new Product
-            {
-                Created_At = product.Created_At,
-                Description = product.Description,
-                ID = product.ID,
-                Images = GetMappedImages(product),
-                Visible = product.Visible,
-                Variants = GetMappedVariants(product.Variants),
-                Title = product.Title,
-                Tags = product.Tags,
-                Is_Locked = product.Is_Locked,
-                Updated_At = product.Updated_At,
-                Options = GetMappedOptions(product.Options),
-                DefaultImages = GetDefaultImages(product),
-                AvailableColors = availableOptions.Colors,
-                AvailableSizes = availableOptions.Sizes,
-                FeaturedImageSrc = product.Images?.FirstOrDefault(e => e.Is_Default == true)?.Src,
-                IsDiscounted = false
-            };
+
+            return GetMappedProduct(product);
         }
 
-        public async Task<List<IProduct>> GetProductsAsync(string categoryFilter="", string searchFilter="")
+        public async Task<List<IProduct>> GetProductsAsync(string categoryFilter="", string searchFilter="",
+            int? limit = null, string sortOrder="")
         {
             try
             {
@@ -87,40 +71,28 @@ namespace api_at_shop.Services.printify
                 {
                     possibleOptions.AddRange(from variant in item.Variants
                                              select variant.Options);
-                    var availableOptions = GetAvailableOptions(item);
-                    var availableColors = availableOptions.Colors;
 
-
-                    var defaultImages = GetDefaultImages(item);
-
-
-                    mapped.Add(new Product
-                    {
-                        ID = item.ID,
-                        Created_At = item.Created_At,
-                        Description = item.Description,
-                        Is_Locked = item.Is_Locked,
-                        Tags = item.Tags,
-                        Title = item.Title,
-                        Updated_At = item.Updated_At,
-                        Visible = item.Visible,
-                        AvailableColors = availableColors,
-                        AvailableSizes = availableOptions.Sizes,
-                        FeaturedImageSrc = item.Images?.FirstOrDefault(e => e.Is_Default == true)?.Src,
-                        Images = GetMappedImages(item),
-                        DefaultImages = defaultImages,
-                        Variants = GetMappedVariants(item.Variants),
-                        Options = GetMappedOptions(item.Options),
-                        IsDiscounted = false
-                    });
+                    mapped.Add(GetMappedProduct(item));
                 }
 
                 if (!string.IsNullOrEmpty(searchFilter))
                 {
-                    var filteredList = mapped.Where(item => item.Title.ToLower().Contains(searchFilter.ToLower()));
-                    return filteredList.ToList();
+                    mapped = mapped.Where(item => item.Title.ToLower().Contains(searchFilter.ToLower())).ToList();
+                    return mapped;
                 }
 
+                if(limit != null)
+                {
+                    mapped = mapped.Take((int)limit).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(sortOrder))
+                {
+                    return OrderBy(sortOrder, mapped);
+                }
+
+                //default sort order is by newest added products
+                mapped = mapped.OrderByDescending(item => DateTime.Parse(item.Created_At)).ToList();
                 return mapped;
             }
             catch (Exception ex)
@@ -128,6 +100,66 @@ namespace api_at_shop.Services.printify
                 throw ex;
             }
             
+        }
+
+        private IProduct GetMappedProduct(PrintifyData item)
+        {
+            var availableOptions = GetAvailableOptions(item);
+            var availableColors = availableOptions.Colors;
+            var defaultImages = GetDefaultImages(item);
+
+            return (new Product
+            {
+                ID = item.ID,
+                Created_At = item.Created_At,
+                Description = item.Description,
+                Is_Locked = item.Is_Locked,
+                Tags = item.Tags,
+                Title = item.Title,
+                Updated_At = item.Updated_At,
+                Visible = item.Visible,
+                AvailableColors = availableColors,
+                AvailableSizes = availableOptions.Sizes,
+                FeaturedImageSrc = item.Images?.FirstOrDefault(e => e.Is_Default == true)?.Src,
+                Images = GetMappedImages(item),
+                DefaultImages = defaultImages,
+                Variants = GetMappedVariants(item.Variants),
+                Options = GetMappedOptions(item.Options),
+                IsDiscounted = false,
+                lowestPrice = item.Variants.OrderBy(p => p.Price).FirstOrDefault().Price
+            });
+
+        }
+
+        private List<IProduct> OrderBy(string sortOrder, List<IProduct> data)
+        {
+            switch (sortOrder)
+            {
+
+                case "createdDesc":
+                    data = data.OrderByDescending(a => DateTime.Parse(a.Created_At)).ToList();
+                    break;
+
+                case "updatedAsc":
+                    data = data.OrderBy(a => DateTime.Parse(a.Updated_At)).ToList();
+                    break;
+
+                case "updatedDesc":
+                    data = data.OrderByDescending(a => DateTime.Parse(a.Updated_At)).ToList();
+                    break;
+                case "priceAsc":
+                    data = data.OrderBy(a => a.lowestPrice).ToList();
+                    break;
+
+                case "priceDesc":
+                    data = data.OrderByDescending(a =>a.lowestPrice).ToList();
+                    break;
+
+                default:
+                    data = data.OrderBy(a => DateTime.Parse(a.Created_At)).ToList();
+                    break;
+            }
+            return data;
         }
 
         public Task<IProduct> UpdateProductAsync(IProduct product)
