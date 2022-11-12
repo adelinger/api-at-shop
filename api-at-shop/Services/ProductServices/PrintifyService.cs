@@ -61,7 +61,7 @@ namespace api_at_shop.Services.printify
                 {
                     var tag = getTag(categoryFilter);
 
-                    filtered = product.Data.Where(item => item.Tags.Contains(tag)).ToList();
+                    filtered = product.Data.Where(item => item.Tags.Contains(tag)).ToList   ();
                 }
                 
 
@@ -78,21 +78,25 @@ namespace api_at_shop.Services.printify
                 if (!string.IsNullOrEmpty(searchFilter))
                 {
                     mapped = mapped.Where(item => item.Title.ToLower().Contains(searchFilter.ToLower())).ToList();
-                    return mapped;
-                }
-
-                if(limit != null)
-                {
-                    mapped = mapped.Take((int)limit).ToList();
+                    
                 }
 
                 if (!string.IsNullOrEmpty(sortOrder))
                 {
-                    return OrderBy(sortOrder, mapped);
+                    mapped = OrderBy(sortOrder, mapped);
+                }
+                else
+                {
+                    //default sort order is by newest added products
+                    mapped = mapped.OrderByDescending(item => DateTime.Parse(item.Created_At)).ToList();
                 }
 
-                //default sort order is by newest added products
-                mapped = mapped.OrderByDescending(item => DateTime.Parse(item.Created_At)).ToList();
+
+                if (limit != null)
+                {
+                    mapped = mapped.Take((int)limit).ToList();
+                }
+
                 return mapped;
             }
             catch (Exception ex)
