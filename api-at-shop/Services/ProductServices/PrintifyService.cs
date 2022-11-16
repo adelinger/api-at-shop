@@ -45,7 +45,7 @@ namespace api_at_shop.Services.printify
             return GetMappedProduct(product);
         }
 
-        public async Task<List<IProduct>> GetProductsAsync(string categoryFilter="", string searchFilter="",
+        public async Task<ProductData> GetProductsAsync(string categoryFilter="", string searchFilter="",
             int? limit = null, string sortOrder="")
         {
             try
@@ -59,9 +59,9 @@ namespace api_at_shop.Services.printify
                 var filtered = new List<PrintifyData>();
                 if (!string.IsNullOrEmpty(categoryFilter))
                 {
-                    var tag = getTag(categoryFilter);
+                    var filterTags = getTags(categoryFilter);
 
-                    filtered = product.Data.Where(item => item.Tags.Contains(tag)).ToList   ();
+                    filtered = product.Data.Where(item => item.Tags.Any(tag => filterTags.Contains(tag))).ToList();
                 }
                 
 
@@ -96,8 +96,7 @@ namespace api_at_shop.Services.printify
                 {
                     mapped = mapped.Take((int)limit).ToList();
                 }
-
-                return mapped;
+                return new ProductData { Product = mapped, rpp = (int)limit, Total = mapped.Count() };
             }
             catch (Exception ex)
             {
@@ -139,7 +138,9 @@ namespace api_at_shop.Services.printify
         {
             switch (sortOrder)
             {
-
+                case "createdAsc":
+                    data = data.OrderBy(a => DateTime.Parse(a.Created_At)).ToList();
+                    break;
                 case "createdDesc":
                     data = data.OrderByDescending(a => DateTime.Parse(a.Created_At)).ToList();
                     break;
@@ -160,7 +161,7 @@ namespace api_at_shop.Services.printify
                     break;
 
                 default:
-                    data = data.OrderBy(a => DateTime.Parse(a.Created_At)).ToList();
+                    data = data.OrderByDescending(a => DateTime.Parse(a.Created_At)).ToList();
                     break;
             }
             return data;
@@ -327,30 +328,30 @@ namespace api_at_shop.Services.printify
             return mapped;
         }
 
-        private string getTag(string filter)
+        private List<string> getTags(string filter)
         {
-            List<string> tags;
+            List<string> tags = new List<string>();
 
-            if (filter == "mens-clothing")
+            if (filter == "clothing")
             {
-                return "Men's Clothing";
-            }
-            if (filter == "womens-clothing")
-            {
-                return "Women's Clothing";
+                tags.Add("Men's Clothing");
+                tags.Add("Women's Clothing");
+                tags.Add("Kids' Clothing");
+                return tags;
             }
 
             if (filter == "accessories")
             {
-              
-                return "Accessories";
+                tags.Add("Accessories");
+                return tags;
             }
             if(filter == "home-and-living")
             {
-                return "Home & Living";
+                tags.Add("Home & Living");
+                return tags;
             }
 
-            return "";
+            return tags;
         }
 
         private List<ProductVariant> GetMappedVariants(List<PrintifyVariants> printifyVariant)

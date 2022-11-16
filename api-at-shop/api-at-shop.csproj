@@ -21,6 +21,8 @@
     <None Remove="DTO\Printify\Data\" />
     <None Remove="DTO\Printify\Data\Options\Values\" />
     <None Remove="Model\Products\" />
+    <None Remove="Utils\" />
+    <None Remove="Utils\Constants\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
@@ -30,5 +32,7 @@
     <Folder Include="DTO\Printify\Data\" />
     <Folder Include="DTO\Printify\Data\Option\Values\" />
     <Folder Include="Model\Products\" />
+    <Folder Include="Utils\" />
+    <Folder Include="Utils\Constants\" />
   </ItemGroup>
 </Project>

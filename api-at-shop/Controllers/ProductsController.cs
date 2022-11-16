@@ -8,6 +8,7 @@ using System.Runtime;
 using System.Threading.Tasks;
 using api_at_shop.Model;
 using api_at_shop.Services;
+using api_at_shop.Utils.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -31,7 +32,7 @@ namespace api_at_shop.Controllers
         {
             try
             {
-                var products = await ProductApiService.GetProductsAsync(categoryFilter, searchFilter, limit, sortOrder);
+                var products = await ProductApiService.GetProductsAsync(categoryFilter, searchFilter, limit ?? ProductConstants.DefaultRecordPerPage, sortOrder);
                 return Ok(products);
 
             }
