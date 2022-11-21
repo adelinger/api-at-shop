@@ -28,11 +28,13 @@ namespace api_at_shop.Controllers
 
         // GET: api/values
         [HttpGet]
-        public async Task<ActionResult<IProduct>> Get(string categoryFilter, string searchFilter, string sortOrder, int? limit = null)
+        public async Task<ActionResult<IProduct>> Get(string categoryFilter, string searchFilter, string sortOrder,
+            string tagFilters,int? limit = null)
         {
             try
-            {
-                var products = await ProductApiService.GetProductsAsync(categoryFilter, searchFilter, limit ?? ProductConstants.DefaultRecordPerPage, sortOrder);
+                {
+                var products = await ProductApiService.GetProductsAsync(categoryFilter, searchFilter, limit ?? ProductConstants.DefaultRecordPerPage,
+                    sortOrder, tagFilters);
                 return Ok(products);
 
             }
