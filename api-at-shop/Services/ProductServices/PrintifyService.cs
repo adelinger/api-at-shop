@@ -46,7 +46,7 @@ namespace api_at_shop.Services.printify
         }
 
         public async Task<ProductData> GetProductsAsync(string categoryFilter="", string searchFilter="",
-            int? limit = null, string sortOrder="")
+            int? limit = null, string sortOrder="", string tagFilters = "")
         {
             try
             {
@@ -62,8 +62,17 @@ namespace api_at_shop.Services.printify
                     var filterTags = getTags(categoryFilter);
 
                     filtered = product.Data.Where(item => item.Tags.Any(tag => filterTags.Contains(tag))).ToList();
+
                 }
-                
+
+                if (!string.IsNullOrEmpty(tagFilters) && tagFilters != "undefined")
+                {
+                    string[] tagFiltersArray = tagFilters.Split(',');
+                    filtered = filtered.Any()
+                        ? filtered.Where(item => item.Tags.Any(tag => tagFiltersArray.Contains(tag))).ToList()
+                        : product.Data.Where(item => item.Tags.Any(tag => tagFiltersArray.Contains(tag))).ToList();
+                }
+
 
                 foreach (var (item, possibleOptions) in from item in filtered.Any() ? filtered : product?.Data
                                                         let possibleOptions = new List<List<int>>()
