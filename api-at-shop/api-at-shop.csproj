@@ -8,7 +8,31 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Microsoft.AspNet.WebApi.Client" />
+    <None Remove="Services\" />
+    <None Remove="Model\" />
+    <None Remove="DTO\" />
+    <None Remove="DTO\Printify\" />
+    <None Remove="DTO\Printify\Data\" />
+    <None Remove="DTO\Printify\Data\Options\Values\" />
+    <None Remove="Model\Products\" />
+    <None Remove="Utils\" />
+    <None Remove="Utils\Constants\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Services\" />
+    <Folder Include="Model\" />
+    <Folder Include="DTO\" />
+    <Folder Include="DTO\Printify\" />
+    <Folder Include="DTO\Printify\Data\" />
+    <Folder Include="DTO\Printify\Data\Option\Values\" />
+    <Folder Include="Model\Products\" />
+    <Folder Include="Utils\" />
+    <Folder Include="Utils\Constants\" />
+  </ItemGroup>
 </Project>
