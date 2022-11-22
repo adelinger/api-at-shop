@@ -26,7 +26,8 @@ namespace api_at_shop.Services.printify
             Client = new HttpClient();
             Configuration = configuration;
             CurrencyService = currencyService;
-            BASE_URL = configuration.GetSection("AppSettings").GetSection("PrintifyApiUrl").Value;
+            //BASE_URL = configuration.GetSection("AppSettings").GetSection("PrintifyApiUrl").Value;
+            BASE_URL = configuration.GetSection("PrintifyApiUrl").Value;
             TOKEN = configuration.GetSection("AppSettings").GetSection("PrintifyToken").Value;
 
             Client.DefaultRequestHeaders.Authorization =
