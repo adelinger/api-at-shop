@@ -23,6 +23,7 @@
     <None Remove="Model\Products\" />
     <None Remove="Utils\" />
     <None Remove="Utils\Constants\" />
+    <None Remove="Services\ProductServices\Common\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
@@ -34,5 +35,6 @@
     <Folder Include="Model\Products\" />
     <Folder Include="Utils\" />
     <Folder Include="Utils\Constants\" />
+    <Folder Include="Services\ProductServices\Common\" />
   </ItemGroup>
 </Project>
