@@ -12,6 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IProductApiService, PrintifyService>();
 builder.Services.AddSingleton<ICurrencyService, HnbWebApiService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

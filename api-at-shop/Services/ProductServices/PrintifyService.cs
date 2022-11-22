@@ -8,6 +8,7 @@ using api_at_shop.DTO.Printify.Data.Image;
 using api_at_shop.DTO.Printify.Data.Variant;
 using api_at_shop.DTO.Printify.Data;
 using api_at_shop.DTO.Printify.Data.Option;
+using api_at_shop.Services.ProductServices;
 
 namespace api_at_shop.Services.printify
 {
@@ -17,16 +18,20 @@ namespace api_at_shop.Services.printify
         private readonly IConfiguration Configuration;
         private readonly string BASE_URL;
         private readonly string TOKEN;
+        private readonly ICurrencyService CurrencyService;
+        private CurrencyDTO[] Currencies;
 
-        public PrintifyService(IConfiguration configuration)
+        public PrintifyService(IConfiguration configuration, ICurrencyService currencyService)
         {
             Client = new HttpClient();
             Configuration = configuration;
+            CurrencyService = currencyService;
             BASE_URL = configuration.GetSection("AppSettings").GetSection("PrintifyApiUrl").Value;
             TOKEN = configuration.GetSection("AppSettings").GetSection("PrintifyToken").Value;
 
             Client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", TOKEN);
+
 
         }
 
@@ -41,8 +46,9 @@ namespace api_at_shop.Services.printify
             res.EnsureSuccessStatusCode();
             var product = await res.Content.ReadFromJsonAsync<PrintifyData>();
             var availableOptions = GetAvailableOptions(product);
+            Currencies = await CurrencyService.GetCurrencies();
 
-            return GetMappedProduct(product);
+            return await GetMappedProductAsync(product);
         }
 
         public async Task<ProductData> GetProductsAsync(string categoryFilter="", string searchFilter="",
@@ -53,6 +59,7 @@ namespace api_at_shop.Services.printify
                 using HttpResponseMessage res = await Client.GetAsync(BASE_URL + "/products.json");
                 res.EnsureSuccessStatusCode();
                 var product = await res.Content.ReadFromJsonAsync<PrintifyProductDTO>();
+                Currencies = await CurrencyService.GetCurrencies();
 
                 var mapped = new List<IProduct>();
 
@@ -81,7 +88,7 @@ namespace api_at_shop.Services.printify
                     possibleOptions.AddRange(from variant in item.Variants
                                              select variant.Options);
 
-                    mapped.Add(GetMappedProduct(item));
+                    mapped.Add(await GetMappedProductAsync(item));
                 }
 
                 if (!string.IsNullOrEmpty(searchFilter))
@@ -114,12 +121,15 @@ namespace api_at_shop.Services.printify
             
         }
 
-        private IProduct GetMappedProduct(PrintifyData item)
+        private async Task<IProduct> GetMappedProductAsync(PrintifyData item)
         {
             var availableOptions = GetAvailableOptions(item);
             var availableColors = availableOptions.Colors;
             var defaultImages = GetDefaultImages(item);
+            var lowestPriceUsd = item.Variants.OrderBy(p => p.Price).FirstOrDefault().Price;
 
+
+            var price = await CurrencyService.ConvertUsdToEur(lowestPriceUsd, GetCurrencyRate("EUR"), GetCurrencyRate("USD"));
             return (new Product
             {
                 ID = item.ID,
@@ -135,10 +145,11 @@ namespace api_at_shop.Services.printify
                 FeaturedImageSrc = item.Images?.FirstOrDefault(e => e.Is_Default == true)?.Src,
                 Images = GetMappedImages(item),
                 DefaultImages = defaultImages,
-                Variants = GetMappedVariants(item.Variants),
+                Variants = await GetMappedVariants(item.Variants),
                 Options = GetMappedOptions(item.Options),
                 IsDiscounted = false,
-                lowestPrice = item.Variants.OrderBy(p => p.Price).FirstOrDefault().Price
+                lowestPrice = price != 0 ? price : lowestPriceUsd,
+                Currency = price != 0 ? "€" : "$"
             });
 
         }
@@ -363,12 +374,13 @@ namespace api_at_shop.Services.printify
             return tags;
         }
 
-        private List<ProductVariant> GetMappedVariants(List<PrintifyVariants> printifyVariant)
+        private async Task<List<ProductVariant>> GetMappedVariants(List<PrintifyVariants> printifyVariant)
         {
             var mapped = new List<ProductVariant>();
 
             foreach (var variant in printifyVariant)
             {
+                var price = await CurrencyService.ConvertUsdToEur(variant.Price, GetCurrencyRate("EUR"), GetCurrencyRate("USD"));
                 if (variant.Is_Enabled)
                 {
                     mapped.Add(new ProductVariant
@@ -380,7 +392,7 @@ namespace api_at_shop.Services.printify
                         Is_Enabled = variant.Is_Enabled,
                         sku = variant.sku,
                         Options = variant.Options,
-                        Price = variant.Price,
+                        Price = price != 0 ? price : variant.Price,
                         Quantity = variant.Quantity,
                         Title = variant.Title
                     });
@@ -389,6 +401,11 @@ namespace api_at_shop.Services.printify
             }
 
             return mapped;
+        }
+
+        private string GetCurrencyRate(string currencyName)
+        {
+           return Currencies?.Where(c => c.Currency == currencyName).FirstOrDefault().MiddleEchangeRate.Replace(",", string.Empty);
         }
     }
 }
