@@ -5,8 +5,9 @@ namespace api_at_shop.Services.ProductServices
 {
 	public interface ICurrencyService
 	{
-		public Task<int> ConvertUsdToEur(int usdValue, string usdRate, string eurRate);
-		public Task<CurrencyDTO[]> GetCurrencies();
+		public Task<int> ConvertUsdToEur(int usdValue, CurrencyDTO[] currencies);
+
+        public Task<CurrencyDTO[]> GetCurrencies();
     }
 }
 

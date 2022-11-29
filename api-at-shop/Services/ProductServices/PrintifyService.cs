@@ -32,7 +32,6 @@ namespace api_at_shop.Services.printify
             Client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", TOKEN);
 
-
         }
 
         public Task<IProduct> DeleteProductAsync(string id)
@@ -48,7 +47,7 @@ namespace api_at_shop.Services.printify
             var availableOptions = GetAvailableOptions(product);
             Currencies = await CurrencyService.GetCurrencies();
 
-            return await GetMappedProductAsync(product);
+            return await GetMappedProductAsync(product, isSingleProduct:true);
         }
 
         public async Task<ProductData> GetProductsAsync(string categoryFilter="", string searchFilter="",
@@ -121,7 +120,7 @@ namespace api_at_shop.Services.printify
             
         }
 
-        private async Task<IProduct> GetMappedProductAsync(PrintifyData item)
+        private async Task<IProduct> GetMappedProductAsync(PrintifyData item, bool isSingleProduct = false)
         {
             var availableOptions = GetAvailableOptions(item);
             var availableColors = availableOptions.Colors;
@@ -129,7 +128,7 @@ namespace api_at_shop.Services.printify
             var lowestPriceUsd = item.Variants.OrderBy(p => p.Price).FirstOrDefault().Price;
 
 
-            var price = await CurrencyService.ConvertUsdToEur(lowestPriceUsd, GetCurrencyRate("EUR"), GetCurrencyRate("USD"));
+            var price = await CurrencyService.ConvertUsdToEur(lowestPriceUsd, Currencies);
             return (new Product
             {
                 ID = item.ID,
@@ -145,7 +144,7 @@ namespace api_at_shop.Services.printify
                 FeaturedImageSrc = item.Images?.FirstOrDefault(e => e.Is_Default == true)?.Src,
                 Images = GetMappedImages(item),
                 DefaultImages = defaultImages,
-                Variants = await GetMappedVariants(item.Variants),
+                Variants = isSingleProduct ? await GetMappedVariants(item.Variants) : null,
                 Options = GetMappedOptions(item.Options),
                 IsDiscounted = false,
                 lowestPrice = price != 0 ? price : lowestPriceUsd,
@@ -376,37 +375,42 @@ namespace api_at_shop.Services.printify
 
         private async Task<List<ProductVariant>> GetMappedVariants(List<PrintifyVariants> printifyVariant)
         {
-            var mapped = new List<ProductVariant>();
-
-            foreach (var variant in printifyVariant)
+            try
             {
-                var price = await CurrencyService.ConvertUsdToEur(variant.Price, GetCurrencyRate("EUR"), GetCurrencyRate("USD"));
-                if (variant.Is_Enabled)
+
+                var mapped = new List<ProductVariant>();
+
+                foreach (var variant in printifyVariant)
                 {
-                    mapped.Add(new ProductVariant
+                    //var price = await CurrencyService.ConvertUsdToEur(variant.Price, Currencies);
+                    int price = 0;
+                    if (variant.Is_Enabled)
                     {
-                        Grams = variant.Grams,
-                        ID = variant.ID,
-                        Is_Available = variant.Is_Available,
-                        Is_Default = variant.Is_Default,
-                        Is_Enabled = variant.Is_Enabled,
-                        sku = variant.sku,
-                        Options = variant.Options,
-                        Price = price != 0 ? price : variant.Price,
-                        Quantity = variant.Quantity,
-                        Title = variant.Title
-                    });
+                        mapped.Add(new ProductVariant
+                        {
+                            Grams = variant.Grams,
+                            ID = variant.ID,
+                            Is_Available = variant.Is_Available,
+                            Is_Default = variant.Is_Default,
+                            Is_Enabled = variant.Is_Enabled,
+                            sku = variant.sku,
+                            Options = variant.Options,
+                            Price = price != 0 ? price : variant.Price,
+                            Quantity = variant.Quantity,
+                            Title = variant.Title
+                        });
+                    }
+
                 }
-               
+
+                return mapped;
             }
-
-            return mapped;
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
-        private string GetCurrencyRate(string currencyName)
-        {
-           return Currencies?.Where(c => c.Currency == currencyName).FirstOrDefault().MiddleEchangeRate.Replace(",", string.Empty);
-        }
     }
 }
 
