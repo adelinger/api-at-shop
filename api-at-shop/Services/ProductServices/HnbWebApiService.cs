@@ -30,20 +30,9 @@ namespace api_at_shop.Services.ProductServices
         {
             try
             {
-
                 var offlineCurrencies = await GetOfflineCurrencyAsync();
-                if (offlineCurrencies == null)
-                {
-                    using HttpResponseMessage res = await Client.GetAsync(API_URL);
-                    res.EnsureSuccessStatusCode();
 
-
-                    var onlineCurrency = await res.Content.ReadFromJsonAsync<CurrencyDTO[]>();
-
-                    await AddNewOfflineCurrencAsync(onlineCurrency);
-                    return onlineCurrency;
-                }
-                else
+                if (offlineCurrencies != null && offlineCurrencies.TimeStamp >= DateTime.Now.AddHours(-2))
                 {
                     var eurCurrency = new CurrencyDTO
                     {
@@ -59,6 +48,18 @@ namespace api_at_shop.Services.ProductServices
                     };
 
                     return new CurrencyDTO[] { eurCurrency, usdCurrency };
+                }
+                else
+                {
+                    using HttpResponseMessage res = await Client.GetAsync(API_URL);
+                    res.EnsureSuccessStatusCode();
+
+
+                    var onlineCurrency = await res.Content.ReadFromJsonAsync<CurrencyDTO[]>();
+
+                    await AddNewOfflineCurrencAsync(onlineCurrency);
+                    return onlineCurrency;
+                   
                 }
             }
             catch (Exception ex)
