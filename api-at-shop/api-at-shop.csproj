@@ -33,6 +33,8 @@
     <None Remove="Microsoft.EntityFrameworkCore" />
     <None Remove="Microsoft.EntityFrameworkCore.SqlServer" />
     <None Remove="Microsoft.EntityFrameworkCore.Design" />
+    <None Remove="Model\Shipping\" />
+    <None Remove="DTO\Printify\Shipping\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
@@ -45,5 +47,7 @@
     <Folder Include="Utils\" />
     <Folder Include="Utils\Constants\" />
     <Folder Include="Services\ProductServices\Common\" />
+    <Folder Include="Model\Shipping\" />
+    <Folder Include="DTO\Printify\Shipping\" />
   </ItemGroup>
 </Project>

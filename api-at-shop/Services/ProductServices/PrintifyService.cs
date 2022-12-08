@@ -9,6 +9,16 @@ using api_at_shop.DTO.Printify.Data.Variant;
 using api_at_shop.DTO.Printify.Data;
 using api_at_shop.DTO.Printify.Data.Option;
 using api_at_shop.Services.ProductServices;
+using api_at_shop.Model.Shipping;
+using api_at_shop.DTO.Printify.Shipping;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System.Text;
+using System.Text.Json.Nodes;
+using Azure;
+using Microsoft.Extensions.Hosting;
+using System.Text.Json;
 
 namespace api_at_shop.Services.printify
 {
@@ -77,6 +87,11 @@ namespace api_at_shop.Services.printify
                     filtered = filtered.Any()
                         ? filtered.Where(item => item.Tags.Any(tag => tagFiltersArray.Contains(tag))).ToList()
                         : product.Data.Where(item => item.Tags.Any(tag => tagFiltersArray.Contains(tag))).ToList();
+
+                    if (!filtered.Any())
+                    {
+                        return new ProductData { Product = mapped, rpp = (int)limit, Total = mapped.Count() };
+                    }
                 }
 
 
@@ -411,6 +426,21 @@ namespace api_at_shop.Services.printify
             }
         }
 
+        public async Task<object> GetShippingPrice(IShippingInformation ShippingInformation)
+        {
+            var serilaizeJson = JsonConvert.SerializeObject(ShippingInformation, Formatting.Indented,
+            new JsonSerializerSettings
+{
+    NullValueHandling = NullValueHandling.Ignore,
+    ContractResolver = new CamelCasePropertyNamesContractResolver()
+        });
+
+            var content = new StringContent(serilaizeJson.ToString(), Encoding.UTF8, "application/json");
+            using HttpResponseMessage res = await Client.PostAsync(BASE_URL + "/orders/shipping.json", content);
+            res.EnsureSuccessStatusCode();
+
+            return await res.Content.ReadFromJsonAsync<object>();
+        }
     }
 }
 

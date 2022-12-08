@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Runtime;
-using System.Threading.Tasks;
+﻿using api_at_shop.DTO.Printify.Shipping;
 using api_at_shop.Model;
 using api_at_shop.Services;
 using api_at_shop.Utils.Constants;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace api_at_shop.Controllers
 {
@@ -46,7 +37,7 @@ namespace api_at_shop.Controllers
 
       
         // GET api/values/5
-        [HttpGet("{id}")]
+        [HttpGet("{id}")]   
         public async Task<ActionResult<IProduct>> GetProduct(string id)
         {
             try
@@ -54,12 +45,29 @@ namespace api_at_shop.Controllers
                 var product = await ProductApiService.GetProductAsync(id);
 
                 return Ok(product);
-            }
+            }       
             catch (Exception ex)
             {
                 return BadRequest(new Response { Message = ex.Message, Success = false });
             }
             
+        }
+
+        [HttpPost]
+        [Route("CalculateShipping")]
+        public async Task<ActionResult<IProduct>> CalculateShipping([FromBody] ShippingDTO AddressTo)
+        {
+            try
+            {
+                var shippingPrice = await ProductApiService.GetShippingPrice(AddressTo);
+
+                return Ok(shippingPrice);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response { Message = ex.Message, Success = false });
+            }
+
         }
 
         // POST api/values
