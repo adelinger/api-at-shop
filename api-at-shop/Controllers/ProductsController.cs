@@ -2,12 +2,15 @@
 using api_at_shop.Model;
 using api_at_shop.Services;
 using api_at_shop.Utils.Constants;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 
 namespace api_at_shop.Controllers
 {
+    
     [Route("api/[controller]")]
+    [EnableCors("at-shop-policy")]
     public class ProductsController : Controller
     {
         private IProductApiService ProductApiService;
@@ -35,9 +38,9 @@ namespace api_at_shop.Controllers
             }
         }
 
-      
-        // GET api/values/5
-        [HttpGet("{id}")]   
+
+        //GET api/values/5
+        [HttpGet("{id}")]
         public async Task<ActionResult<IProduct>> GetProduct(string id)
         {
             try
@@ -45,20 +48,20 @@ namespace api_at_shop.Controllers
                 var product = await ProductApiService.GetProductAsync(id);
 
                 return Ok(product);
-            }       
+            }
             catch (Exception ex)
             {
                 return BadRequest(new Response { Message = ex.Message, Success = false });
             }
-            
+
         }
 
         [HttpPost]
-        [Route("CalculateShipping")]
+        [Route("calculate-shipping")]
         public async Task<ActionResult<IProduct>> CalculateShipping([FromBody] ShippingDTO AddressTo)
         {
             try
-            {
+            {   
                 var shippingPrice = await ProductApiService.GetShippingPrice(AddressTo);
 
                 return Ok(shippingPrice);

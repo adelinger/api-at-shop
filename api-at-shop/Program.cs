@@ -21,6 +21,17 @@ builder.Services.AddDbContext<DataContext>(options =>
 builder.Services.AddScoped<IProductApiService, PrintifyService>();
 builder.Services.AddScoped<ICurrencyService, HnbWebApiService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("at-shop-policy",
+        policy =>
+        {
+            policy.WithOrigins("*")
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+        });
+});
+
 var app = builder.Build();
 
 
@@ -32,6 +43,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("at-shop-policy");
 
 app.UseAuthorization();
 
