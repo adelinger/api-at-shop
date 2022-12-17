@@ -163,7 +163,8 @@ namespace api_at_shop.Services.printify
                 Options = GetMappedOptions(item.Options),
                 IsDiscounted = false,
                 lowestPrice = price != 0 ? price : lowestPriceUsd,
-                Currency = price != 0 ? "€" : "$"
+                Currency = price != 0 ? "€" : "$",
+                DefaultVariantID = item.Variants.Find(e => e.Is_Default == true).ID
             });
 
         }
@@ -430,10 +431,10 @@ namespace api_at_shop.Services.printify
         {
             var serilaizeJson = JsonConvert.SerializeObject(ShippingInformation, Formatting.Indented,
             new JsonSerializerSettings
-{
-    NullValueHandling = NullValueHandling.Ignore,
-    ContractResolver = new CamelCasePropertyNamesContractResolver()
-        });
+            {
+             NullValueHandling = NullValueHandling.Ignore,
+             ContractResolver = new CamelCasePropertyNamesContractResolver()
+             });
 
             var content = new StringContent(serilaizeJson.ToString(), Encoding.UTF8, "application/json");
             using HttpResponseMessage res = await Client.PostAsync(BASE_URL + "/orders/shipping.json", content);

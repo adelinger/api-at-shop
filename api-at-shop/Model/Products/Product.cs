@@ -23,6 +23,7 @@ namespace api_at_shop.Model
         public List<ProductVariant> Variants { get; set; }
         public List<ProductOptions> Options { get; set; }
         public List<ProductSize> AvailableSizes { get; set; }
+        public int DefaultVariantID { get; set; }
     }
 }
 

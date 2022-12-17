@@ -23,7 +23,7 @@ builder.Services.AddScoped<ICurrencyService, HnbWebApiService>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("at-shop-policy",     
+    options.AddPolicy("AtPolicy",     
         policy =>
         {
             policy.WithOrigins("http://localhost:3000", "at-classics.com")
@@ -44,7 +44,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("at-shop-policy");
+app.UseCors("AtPolicy");
 
 app.UseAuthorization();
 

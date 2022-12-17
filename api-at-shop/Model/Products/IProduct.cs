@@ -23,6 +23,7 @@ namespace api_at_shop.Model
         public List<ProductImage> Images { get; set; }
         public List<ProductImage> DefaultImages { get; set; }
         public List<ProductVariant> Variants { get; set; }
+        public int DefaultVariantID { get; set; }
     }
 }
 

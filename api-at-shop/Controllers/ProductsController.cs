@@ -9,8 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace api_at_shop.Controllers
 {
     
+    [EnableCors("AtPolicy")]
+    [Route("api/[controller]/[action]")]
     [Route("api/[controller]")]
-    [EnableCors("at-shop-policy")]
+   
     public class ProductsController : Controller
     {
         private IProductApiService ProductApiService;
