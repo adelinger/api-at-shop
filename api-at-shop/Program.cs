@@ -23,10 +23,10 @@ builder.Services.AddScoped<ICurrencyService, HnbWebApiService>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("at-shop-policy",
+    options.AddPolicy("at-shop-policy",     
         policy =>
         {
-            policy.WithOrigins("*")
+            policy.WithOrigins("http://localhost:3000", "at-classics.com")
                                 .AllowAnyHeader()
                                 .AllowAnyMethod();
         });
