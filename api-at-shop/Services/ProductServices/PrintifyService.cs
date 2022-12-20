@@ -442,6 +442,61 @@ namespace api_at_shop.Services.printify
 
             return await res.Content.ReadFromJsonAsync<object>();
         }
+
+        public async Task<Model.Response> AddTagAsync(string id, string tag)
+        {
+            return await AddRemoveTag("add", id, tag);
+        }
+
+        public async Task<Model.Response> RemoveTagAsync(string id, string tag)
+        {
+            return await AddRemoveTag("remove", id, tag);
+        }
+
+        private async Task<Model.Response> AddRemoveTag(string addOrRemove, string id, string tag)
+        {
+            var response = new Model.Response();
+            using HttpResponseMessage res = await Client.GetAsync(BASE_URL + "/products/" + id + ".json");
+            res.EnsureSuccessStatusCode();
+            var product = await res.Content.ReadFromJsonAsync<PrintifyData>();
+
+            var match = product.Tags.Any(t => t == tag);
+
+            if(match && addOrRemove == "remove")
+            {
+                product.Tags.Remove(tag);
+            }
+
+            if (addOrRemove == "add" && match)
+            {
+                response.Message = "Tag already exists";
+                response.Success = false;
+                return response;
+            }
+
+            if(addOrRemove == "add" && !match)
+            {
+                product.Tags.Add(tag);
+            }
+
+            Tags tags = new Tags();
+            tags.tags = product.Tags;
+
+            using HttpResponseMessage req = await Client.PutAsJsonAsync(BASE_URL + "/products/" + id + ".json", tags);
+
+            req.EnsureSuccessStatusCode();
+
+            response.Success = req.StatusCode == System.Net.HttpStatusCode.OK ? true : false;
+            
+
+            return response;
+        }
+    }
+
+    internal class Tags
+    {
+        public List<string>? tags { get; set; }
+
     }
 }
 

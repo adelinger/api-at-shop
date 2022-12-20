@@ -75,6 +75,45 @@ namespace api_at_shop.Controllers
 
         }
 
+        [HttpPost]
+        [Route("add-tag")]
+        public async Task<ActionResult<IProduct>> AddTag(string id, string tag)
+        {
+            try
+            {
+                var task = await ProductApiService.AddTagAsync(id, tag);
+                if (task.Success)
+                    return Ok();
+                else
+                    return BadRequest(task);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response { Message = ex.Message, Success = false });
+            }
+
+        }
+
+        [HttpPost]
+        [HttpPost("{id}/{tag}")]
+        [Route("remove-tag")]
+        public async Task<ActionResult<IProduct>> RemoveTag(string id, string tag)
+        {
+            try
+            {
+                var task = await ProductApiService.RemoveTagAsync(id, tag);
+                if (task.Success)
+                    return Ok();
+                else
+                    return BadRequest(task);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response { Message = ex.Message, Success = false });
+            }
+
+        }
+
         // POST api/values
         [HttpPost]
         public void Post([FromBody] string value)
