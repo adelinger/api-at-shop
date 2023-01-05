@@ -1,9 +1,11 @@
-﻿using api_at_shop.DTO.Printify.Shipping;
+﻿using System.Collections.Generic;
+using api_at_shop.DTO.Printify.Shipping;
 using api_at_shop.Model;
 using api_at_shop.Services;
 using api_at_shop.Utils.Constants;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 
 
 namespace api_at_shop.Controllers
@@ -56,6 +58,22 @@ namespace api_at_shop.Controllers
                 return BadRequest(new Response { Message = ex.Message, Success = false });
             }
 
+        }
+
+        [HttpGet]
+        [Route("featured-products")]
+        public async Task<ActionResult<IProduct>> GetFeaturedProducts()
+        {
+            try
+            {
+                var products = await ProductApiService.GetFeaturedProducts();
+                return Ok(products);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response { Message = ex.Message, Success = false });
+            }
         }
 
         [HttpPost]

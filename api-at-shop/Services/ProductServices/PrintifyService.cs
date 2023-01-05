@@ -19,6 +19,7 @@ using System.Text.Json.Nodes;
 using Azure;
 using Microsoft.Extensions.Hosting;
 using System.Text.Json;
+using api_at_shop.Utils.Constants;
 
 namespace api_at_shop.Services.printify
 {
@@ -60,14 +61,47 @@ namespace api_at_shop.Services.printify
             return await GetMappedProductAsync(product, isSingleProduct:true);
         }
 
+        public async Task<ProductData> GetFeaturedProducts()
+        {
+            try
+            {
+                var product = await GetProductsAsync();
+
+                Currencies = await CurrencyService.GetCurrencies();
+
+                var mapped = new List<IProduct>();
+                var limit = ProductConstants.DefaultFeaturedRecordsPerPage;
+
+                var filtered = product.Data.Where(item => item.Tags.Contains("Featured", StringComparer.InvariantCultureIgnoreCase)).OrderByDescending(item => DateTime.Parse(item.Created_At)).Take(limit).ToList();
+
+                foreach (var item in filtered)
+                {
+                    mapped.Add(await GetMappedProductAsync(item));
+                }
+
+                return new ProductData { Product = mapped, rpp = (int)limit, Total = mapped.Count() };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private async Task<PrintifyProductDTO> GetProductsAsync()
+        {
+            using HttpResponseMessage res = await Client.GetAsync(BASE_URL + "/products.json");
+            res.EnsureSuccessStatusCode();
+
+            return await res.Content.ReadFromJsonAsync<PrintifyProductDTO>(); ;
+        }
+
         public async Task<ProductData> GetProductsAsync(string categoryFilter="", string searchFilter="",
             int? limit = null, string sortOrder="", string tagFilters = "")
         {
             try
             {
-                using HttpResponseMessage res = await Client.GetAsync(BASE_URL + "/products.json");
-                res.EnsureSuccessStatusCode();
-                var product = await res.Content.ReadFromJsonAsync<PrintifyProductDTO>();
+                var product = await GetProductsAsync();
+
                 Currencies = await CurrencyService.GetCurrencies();
 
                 var mapped = new List<IProduct>();
@@ -78,7 +112,6 @@ namespace api_at_shop.Services.printify
                     var filterTags = getTags(categoryFilter);
 
                     filtered = product.Data.Where(item => item.Tags.Any(tag => filterTags.Contains(tag))).ToList();
-
                 }
 
                 if (!string.IsNullOrEmpty(tagFilters) && tagFilters != "undefined")
@@ -140,8 +173,8 @@ namespace api_at_shop.Services.printify
             var availableOptions = GetAvailableOptions(item);
             var availableColors = availableOptions.Colors;
             var defaultImages = GetDefaultImages(item);
-            var lowestPriceUsd = item.Variants.OrderBy(p => p.Price).FirstOrDefault().Price;
-
+            var lowestPriceUsd = item.Variants.Where(v=>v.Is_Enabled == true).OrderBy(p => p.Price).FirstOrDefault().Price;
+            var variants = isSingleProduct ? await GetMappedVariants(item.Variants) : null;
 
             var price = await CurrencyService.ConvertUsdToEur(lowestPriceUsd, Currencies);
             return (new Product
@@ -159,8 +192,8 @@ namespace api_at_shop.Services.printify
                 FeaturedImageSrc = item.Images?.FirstOrDefault(e => e.Is_Default == true)?.Src,
                 Images = GetMappedImages(item),
                 DefaultImages = defaultImages,
-                Variants = isSingleProduct ? await GetMappedVariants(item.Variants) : null,
-                Options = GetMappedOptions(item.Options),
+                Variants = variants,
+                Options = isSingleProduct ? GetMappedOptions(item.Options, variants) : null,
                 IsDiscounted = false,
                 lowestPrice = price != 0 ? price : lowestPriceUsd,
                 Currency = price != 0 ? "€" : "$",
@@ -346,17 +379,27 @@ namespace api_at_shop.Services.printify
            
         }
 
-        private List<ProductOptions> GetMappedOptions(List<PrintifyOptions> printifyOptions)
+        private List<ProductOptions> GetMappedOptions(List<PrintifyOptions> printifyOptions, List<ProductVariant> Variants)
         {
             var mapped = new List<ProductOptions>();
 
             foreach (var option in printifyOptions)
             {
+                var list = Variants.Select(v => v.Options);
+                var ids = new List<int>();
+                foreach (var variant in list)
+                {
+                    foreach (var item in variant)
+                    {
+                        ids.Add(item);
+                    }
+                }
+
                 mapped.Add(new ProductOptions
                 {
                     Name = option.Name,
                     Type = option.Type,
-                    Values = option.Values
+                    Values = option.Values.Where(o=> ids.Contains(o.ID)).ToList()
                 });
             }
 
@@ -398,8 +441,8 @@ namespace api_at_shop.Services.printify
 
                 foreach (var variant in printifyVariant)
                 {
-                    //var price = await CurrencyService.ConvertUsdToEur(variant.Price, Currencies);
-                    int price = 0;
+                    var price = await CurrencyService.ConvertUsdToEur(variant.Price, Currencies);
+                    //int price = 0;
                     if (variant.Is_Enabled)
                     {
                         mapped.Add(new ProductVariant
@@ -491,6 +534,7 @@ namespace api_at_shop.Services.printify
 
             return response;
         }
+
     }
 
     internal class Tags

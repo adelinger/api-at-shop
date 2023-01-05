@@ -14,7 +14,7 @@ namespace api_at_shop.Services.ProductServices
 {
 	public class HnbWebApiService :ICurrencyService
 	{
-        private const string API_URL = "https://api.hnb.hr/tecajn/v1?valuta=EUR&valuta=USD";
+        private const string API_URL = "https://api.hnb.hr/tecajn-eur/v3?valuta=EUR&valuta=USD";
         private HttpClient Client;
         private readonly IConfiguration Configuration;
         private readonly DataContext DataContext;
@@ -105,7 +105,7 @@ namespace api_at_shop.Services.ProductServices
         {
             try
             {
-                var eurValue = Decimal.Parse(OnlineCurrency.Where(c => c.Currency == "EUR").FirstOrDefault().MiddleEchangeRate);
+                var eurValue = 1;
                 var usdValue = Decimal.Parse(OnlineCurrency.Where(c => c.Currency == "USD").FirstOrDefault().MiddleEchangeRate);
 
                 var toInsert = new Currency() { EURValue = eurValue, USDValue = usdValue, TimeStamp = DateTime.UtcNow.AddHours(1) };

@@ -15,6 +15,7 @@ namespace api_at_shop.Services
         public Task<object> GetShippingPrice(IShippingInformation ShippingInformation);
         public Task<Response> AddTagAsync(string id, string tag);
         public Task<Response> RemoveTagAsync(string id, string tag);
+        public Task<ProductData> GetFeaturedProducts();
     }
 }
 

@@ -7,20 +7,20 @@ namespace api_at_shop.Model
 	public class CurrencyDTO
 	{
 
-        [JsonPropertyName("Datum primjene")]
+        [JsonPropertyName("datum_primjene")]
         public string Date { get; set; }
 
-        [JsonPropertyName("Država")]
+        [JsonPropertyName("drzava")]
         public string Country { get; set; }
 
-        [JsonPropertyName("Šifra valute")]
+        [JsonPropertyName("sifra_valute")]
         public string CurrencyID { get; set; }
 
-        [JsonPropertyName("Valuta")]
+        [JsonPropertyName("valuta")]
         public string Currency { get; set; }
 
 
-        [JsonPropertyName("Srednji za devize")]
+        [JsonPropertyName("srednji_tecaj")]
         public string MiddleEchangeRate { get; set; }
 
 
