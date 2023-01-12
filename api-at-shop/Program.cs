@@ -31,7 +31,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AtPolicy",     
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000", "at-classics.com")
+            policy.WithOrigins("http://localhost:3000", "at-classics.com", "https://at-shop.vercel.app")
                                 .AllowAnyHeader()
                                 .AllowAnyMethod();
         });
