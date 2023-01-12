@@ -3,6 +3,7 @@ using api_at_shop.DTO.Printify.Shipping;
 using api_at_shop.Model;
 using api_at_shop.Services;
 using api_at_shop.Utils.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -14,6 +15,7 @@ namespace api_at_shop.Controllers
     [EnableCors("AtPolicy")]
     [Route("api/[controller]/[action]")]
     [Route("api/[controller]")]
+    [Authorize]
    
     public class ProductsController : Controller
     {

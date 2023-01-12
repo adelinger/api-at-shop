@@ -1,7 +1,11 @@
-﻿using api_at_shop.Repository;
+﻿using api_at_shop.Auth;
+using api_at_shop.Repository;
 using api_at_shop.Services;
+using api_at_shop.Services.AuthServices;
+using api_at_shop.Services.AuthServices.Common;
 using api_at_shop.Services.printify;
 using api_at_shop.Services.ProductServices;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +24,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 builder.Services.AddScoped<IProductApiService, PrintifyService>();
 builder.Services.AddScoped<ICurrencyService, HnbWebApiService>();
+builder.Services.AddSingleton<IBasicAuthService, BasicAuthService>();
 
 builder.Services.AddCors(options =>
 {
@@ -31,6 +36,9 @@ builder.Services.AddCors(options =>
                                 .AllowAnyMethod();
         });
 });
+
+builder.Services.AddAuthentication("BasicAuthentication")
+    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
 var app = builder.Build();
 
@@ -46,9 +54,11 @@ app.UseHttpsRedirection();
 
 app.UseCors("AtPolicy");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
 
 app.Run();
 

@@ -35,6 +35,10 @@
     <None Remove="Microsoft.EntityFrameworkCore.Design" />
     <None Remove="Model\Shipping\" />
     <None Remove="DTO\Printify\Shipping\" />
+    <None Remove="Auth\" />
+    <None Remove="Model\Auth\" />
+    <None Remove="Services\AuthServices\" />
+    <None Remove="Services\AuthServices\Common\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
@@ -49,5 +53,9 @@
     <Folder Include="Services\ProductServices\Common\" />
     <Folder Include="Model\Shipping\" />
     <Folder Include="DTO\Printify\Shipping\" />
+    <Folder Include="Auth\" />
+    <Folder Include="Model\Auth\" />
+    <Folder Include="Services\AuthServices\" />
+    <Folder Include="Services\AuthServices\Common\" />
   </ItemGroup>
 </Project>
