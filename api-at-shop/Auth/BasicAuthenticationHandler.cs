@@ -8,12 +8,13 @@ using System.Text;
 using System.Text.Encodings.Web;
 using api_at_shop.Model.Auth;
 using api_at_shop.Services.AuthServices.Common;
+using Microsoft.AspNetCore.Cors;
 
 namespace api_at_shop.Auth
 {
     public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
-
+        
         public BasicAuthenticationHandler(
             IOptionsMonitor<AuthenticationSchemeOptions> options,
             IBasicAuthService AuthService,

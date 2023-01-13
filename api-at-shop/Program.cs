@@ -28,13 +28,13 @@ builder.Services.AddSingleton<IBasicAuthService, BasicAuthService>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AtPolicy",     
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:3000", "at-classics.com", "https://at-shop.vercel.app")
-                                .AllowAnyHeader()
-                                .AllowAnyMethod();
-        });
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder
+            .WithOrigins("*")
+            .WithMethods("*")
+            .WithHeaders("Authorization");
+    });
 });
 
 builder.Services.AddAuthentication("BasicAuthentication")
@@ -52,7 +52,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("AtPolicy");
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();

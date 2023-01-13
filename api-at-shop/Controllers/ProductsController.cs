@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using api_at_shop.Auth;
 using api_at_shop.DTO.Printify.Shipping;
 using api_at_shop.Model;
 using api_at_shop.Services;
@@ -11,9 +12,10 @@ using Microsoft.Data.SqlClient;
 
 namespace api_at_shop.Controllers
 {
-    [EnableCors("AtPolicy")]
     [Route("api/[controller]/[action]")]
     [Route("api/[controller]")]
+    [EnableCors("AllowAll")]
+    [Authorize]
     public class ProductsController : Controller
     {
         private IProductApiService ProductApiService;
@@ -24,7 +26,7 @@ namespace api_at_shop.Controllers
         }
 
         // GET: api/values
-        [EnableCors("AtPolicy")]
+        [EnableCors("AllowAll")]
         [HttpGet]
         public async Task<ActionResult<IProduct>> Get(string categoryFilter, string searchFilter, string sortOrder,
             string tagFilters,int? limit = null)
@@ -44,7 +46,6 @@ namespace api_at_shop.Controllers
 
 
         //GET api/values/5
-        
         [HttpGet("{id}")]
         public async Task<ActionResult<IProduct>> GetProduct(string id)
         {
