@@ -29,10 +29,15 @@ namespace api_at_shop.Controllers
         [EnableCors("AllowAll")]
         [HttpGet]
         public async Task<ActionResult<IProduct>> Get(string categoryFilter, string searchFilter, string sortOrder,
-            string tagFilters,int? limit = null)
+            string tagFilters, string type, int? limit = null)
         {
             try
                 {
+                if(!string.IsNullOrEmpty(type) && type == "featured")
+                {
+                    var featuredProducts = await ProductApiService.GetFeaturedProducts();
+                    return Ok(featuredProducts);
+                }
                 var products = await ProductApiService.GetProductsAsync(categoryFilter, searchFilter, limit ?? ProductConstants.DefaultRecordPerPage,
                     sortOrder, tagFilters);
                 return Ok(products);
