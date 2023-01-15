@@ -87,6 +87,43 @@ namespace api_at_shop.Services.printify
             }
         }
 
+        public async Task<ProductData> GetRelatedProducts(string productId, int limit)
+        {
+            try
+            {
+                var listOfProducts = await GetProductsAsync();
+                var product = listOfProducts.Data.SingleOrDefault(p => p.ID == productId);
+
+                Currencies = await CurrencyService.GetCurrencies();
+
+                var mapped = new List<IProduct>();
+
+                var relatedProduct = SearchSimilarProducts(product, listOfProducts.Data);
+
+                foreach (var item in relatedProduct)
+                {
+                    mapped.Add(await GetMappedProductAsync(item));
+                }
+
+                return new ProductData { Product = mapped,
+                    rpp = limit == 0 ? ProductConstants.DefeaultRelatedRecordsPerPage : limit, Total = mapped.Count() };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        static List<PrintifyData> SearchSimilarProducts(PrintifyData variableProduct, List<PrintifyData> products)
+        {
+            var variableProductTags = variableProduct.Tags.Select(t => t.ToLower());
+            return products.Where(p => p.ID != variableProduct.ID)
+                          .Where(p => p.Tags.Select(t => t.ToLower()).Intersect(variableProductTags).Any())
+                          .OrderByDescending(p => p.Tags.Select(t => t.ToLower()).Intersect(variableProductTags).Count())
+                          .ThenBy(p => p.Created_At)
+                          .ToList();
+        }
+
         private async Task<PrintifyProductDTO> GetProductsAsync()
         {
             using HttpResponseMessage res = await Client.GetAsync(BASE_URL + "/products.json");

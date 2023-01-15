@@ -49,6 +49,22 @@ namespace api_at_shop.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("related-products")]
+        public async Task<ActionResult<IProduct>> GetRelatedProducts(string productId, int limit)
+        {
+            try
+            {
+                var relatedProducts = await ProductApiService.GetRelatedProducts(productId, limit);
+
+                return Ok(relatedProducts);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response { Message = ex.Message, Success = false });
+            }
+        }
 
         //GET api/values/5
         [HttpGet("{id}")]
