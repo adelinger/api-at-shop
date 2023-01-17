@@ -13,6 +13,7 @@ namespace api_at_shop.Model
         public string address2 { get; set; }
         public string city { get; set; }
         public string zip { get; set; }
+
     }
 }
 

@@ -39,6 +39,7 @@
     <None Remove="Model\Auth\" />
     <None Remove="Services\AuthServices\" />
     <None Remove="Services\AuthServices\Common\" />
+    <None Remove="Repository\Entites\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
@@ -57,5 +58,6 @@
     <Folder Include="Model\Auth\" />
     <Folder Include="Services\AuthServices\" />
     <Folder Include="Services\AuthServices\Common\" />
+    <Folder Include="Repository\Entites\" />
   </ItemGroup>
 </Project>

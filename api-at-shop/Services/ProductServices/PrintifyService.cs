@@ -20,6 +20,10 @@ using Azure;
 using Microsoft.Extensions.Hosting;
 using System.Text.Json;
 using api_at_shop.Utils.Constants;
+using api_at_shop.DTO.Printify;
+using api_at_shop.Repository.Entities;
+using api_at_shop.Repository;
+using api_at_shop.Repository.Entites;
 
 namespace api_at_shop.Services.printify
 {
@@ -31,8 +35,9 @@ namespace api_at_shop.Services.printify
         private readonly string TOKEN;
         private readonly ICurrencyService CurrencyService;
         private CurrencyDTO[] Currencies;
+        private readonly DataContext DataContext;
 
-        public PrintifyService(IConfiguration configuration, ICurrencyService currencyService)
+        public PrintifyService(IConfiguration configuration, ICurrencyService currencyService, DataContext dataContext)
         {
             Client = new HttpClient();
             Configuration = configuration;
@@ -42,7 +47,7 @@ namespace api_at_shop.Services.printify
 
             Client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", TOKEN);
-
+            DataContext = dataContext;
         }
 
         public Task<IProduct> DeleteProductAsync(string id)
@@ -509,18 +514,30 @@ namespace api_at_shop.Services.printify
 
         public async Task<object> GetShippingPrice(IShippingInformation ShippingInformation)
         {
-            var serilaizeJson = JsonConvert.SerializeObject(ShippingInformation, Formatting.Indented,
-            new JsonSerializerSettings
+            try
             {
-             NullValueHandling = NullValueHandling.Ignore,
-             ContractResolver = new CamelCasePropertyNamesContractResolver()
-             });
+                if (!IsEuCountry(ShippingInformation.address_to.country))
+                {
+                    throw new Exception("Country not supported");
+                }
 
-            var content = new StringContent(serilaizeJson.ToString(), Encoding.UTF8, "application/json");
-            using HttpResponseMessage res = await Client.PostAsync(BASE_URL + "/orders/shipping.json", content);
-            res.EnsureSuccessStatusCode();
+                var serilaizeJson = JsonConvert.SerializeObject(ShippingInformation, Formatting.Indented,
+                    new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore,
+                        ContractResolver = new CamelCasePropertyNamesContractResolver()
+                    });
 
-            return await res.Content.ReadFromJsonAsync<object>();
+                var content = new StringContent(serilaizeJson.ToString(), Encoding.UTF8, "application/json");
+                using HttpResponseMessage res = await Client.PostAsync(BASE_URL + "/orders/shipping.json", content);
+                res.EnsureSuccessStatusCode();
+
+                return await res.Content.ReadFromJsonAsync<object>();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public async Task<Model.Response> AddTagAsync(string id, string tag)
@@ -572,12 +589,98 @@ namespace api_at_shop.Services.printify
             return response;
         }
 
+        public bool IsEuCountry(string country)
+        {
+            var euCountries = new List<string>
+            {
+                          "AT","BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR",
+                          "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL",
+                          "PL", "PT", "RO", "SK", "SI", "ES", "SE",
+
+            };
+
+            return euCountries.Contains(country);
+        }
+
+        public async Task<Order> MakeNewOrder(IShippingInformation OrderDetails)
+        {
+            try
+            {
+                OrderDetails.external_id = Guid.NewGuid().ToString();
+                OrderDetails.label = "at shop order";
+                var serilaizeJson = JsonConvert.SerializeObject(OrderDetails, Formatting.Indented,
+                   new JsonSerializerSettings
+                   {
+                       NullValueHandling = NullValueHandling.Ignore,
+                       ContractResolver = new CamelCasePropertyNamesContractResolver()
+                   });
+
+                //var content = new StringContent(serilaizeJson.ToString(), Encoding.UTF8, "application/json");
+                //using HttpResponseMessage res = await Client.PostAsync(BASE_URL + "/orders.json", content);
+                //res.EnsureSuccessStatusCode();
+
+                //var result = await res.Content.ReadFromJsonAsync<Order>();
+                //result.Success = res.StatusCode == System.Net.HttpStatusCode.OK ? true : false;
+                var result = new Order { Success = true, ID = "testid2131" };
+                //TODO: test this without sending order to printify
+
+                if (result.Success)
+                {
+                    var mapped = GetMappedOrderObject(OrderDetails, result.ID);
+
+                    foreach (var item in OrderDetails.line_items)
+                    {
+                        var product = new ProductOrderEntity
+                        {
+                            PrintProviderID = item.Print_provider_id,
+                            BluePrintID = item.Blueprint_id,
+                            VariantID = item.Variant_id,
+                            PrintifyProductID = item.Product_id,
+                            Quantity = item.Quantity,
+                            Sku = item.Sku,
+                            Order = mapped
+                        };
+                        var addProduct = await DataContext.AddAsync<ProductOrderEntity>(product);
+                    }
+                    var task = await DataContext.AddAsync<OrderEntity>(mapped);
+                    await DataContext.SaveChangesAsync();
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private OrderEntity GetMappedOrderObject(IShippingInformation OrderDetails, string printifyOrderId)
+        {
+            return new OrderEntity
+            {
+                ExternalID = OrderDetails.external_id,
+                Label = OrderDetails.label,
+                PrintifyID = printifyOrderId,
+                Address1 = OrderDetails.address_to.address1,
+                Address2 = OrderDetails.address_to.address2,
+                FirstName = OrderDetails.address_to.first_name,
+                LastName = OrderDetails.address_to.last_name,
+                Email = OrderDetails.address_to.email,
+                City = OrderDetails.address_to.city,
+                Phone = OrderDetails.address_to.phone,
+                Country = OrderDetails.address_to.country,
+                Region = OrderDetails.address_to.region,
+                Zip = OrderDetails.address_to.zip,
+                SendShippingInformation = OrderDetails.send_shipping_notification,
+                ShippingMethod = OrderDetails.shipping_method,
+                TimeStamp = DateTime.UtcNow.AddHours(1),
+            };
+        }
     }
 
     internal class Tags
     {
         public List<string>? tags { get; set; }
-
     }
 }
 

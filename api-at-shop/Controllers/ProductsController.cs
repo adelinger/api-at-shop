@@ -117,6 +117,23 @@ namespace api_at_shop.Controllers
         }
 
         [HttpPost]
+        [Route("new-order")]
+        public async Task<ActionResult<IProduct>> NewOrder([FromBody] ShippingDTO AddressTo)
+        {
+            try
+            {
+                var result = await ProductApiService.MakeNewOrder(AddressTo);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response { Message = ex.Message, Success = false });
+            }
+
+        }
+
+        [HttpPost]
         [Route("add-tag")]
         public async Task<ActionResult<IProduct>> AddTag(string id, string tag)
         {

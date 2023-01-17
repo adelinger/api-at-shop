@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using api_at_shop.Repository;
 
@@ -11,9 +12,11 @@ using api_at_shop.Repository;
 namespace apiatshop.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230117161036_addProductTable")]
+    partial class addProductTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,46 +45,6 @@ namespace apiatshop.Migrations
                     b.HasKey("CurrencyID");
 
                     b.ToTable("Currencies");
-                });
-
-            modelBuilder.Entity("api_at_shop.Repository.Entites.ProductOrderEntity", b =>
-                {
-                    b.Property<int>("ProductOrderID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductOrderID"));
-
-                    b.Property<int?>("BluePrintID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CustomProductID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OrderID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PrintProviderID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PrintifyProductID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Sku")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("VariantID")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProductOrderID");
-
-                    b.HasIndex("OrderID");
-
-                    b.ToTable("Product");
                 });
 
             modelBuilder.Entity("api_at_shop.Repository.Entities.OrderEntity", b =>
@@ -136,6 +99,13 @@ namespace apiatshop.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ProductID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
                     b.Property<string>("Region")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -143,11 +113,15 @@ namespace apiatshop.Migrations
                     b.Property<bool>("SendShippingInformation")
                         .HasColumnType("bit");
 
-                    b.Property<int>("ShippingMethod")
-                        .HasColumnType("int");
+                    b.Property<string>("ShippingMethod")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("TimeStamp")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("VariantID")
+                        .HasColumnType("int");
 
                     b.Property<string>("Zip")
                         .IsRequired()
@@ -156,17 +130,6 @@ namespace apiatshop.Migrations
                     b.HasKey("OrderID");
 
                     b.ToTable("Order");
-                });
-
-            modelBuilder.Entity("api_at_shop.Repository.Entites.ProductOrderEntity", b =>
-                {
-                    b.HasOne("api_at_shop.Repository.Entities.OrderEntity", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
                 });
 #pragma warning restore 612, 618
         }

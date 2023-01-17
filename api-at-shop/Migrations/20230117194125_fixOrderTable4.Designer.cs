@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using api_at_shop.Repository;
 
@@ -11,9 +12,11 @@ using api_at_shop.Repository;
 namespace apiatshop.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230117194125_fixOrderTable4")]
+    partial class fixOrderTable4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,18 +47,12 @@ namespace apiatshop.Migrations
                     b.ToTable("Currencies");
                 });
 
-            modelBuilder.Entity("api_at_shop.Repository.Entites.ProductOrderEntity", b =>
+            modelBuilder.Entity("api_at_shop.Repository.Entites.ProductEntity", b =>
                 {
-                    b.Property<int>("ProductOrderID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductOrderID"));
+                    b.Property<string>("ProductID")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int?>("BluePrintID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CustomProductID")
                         .HasColumnType("int");
 
                     b.Property<int>("OrderID")
@@ -63,10 +60,6 @@ namespace apiatshop.Migrations
 
                     b.Property<int?>("PrintProviderID")
                         .HasColumnType("int");
-
-                    b.Property<string>("PrintifyProductID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -77,7 +70,7 @@ namespace apiatshop.Migrations
                     b.Property<int?>("VariantID")
                         .HasColumnType("int");
 
-                    b.HasKey("ProductOrderID");
+                    b.HasKey("ProductID");
 
                     b.HasIndex("OrderID");
 
@@ -158,7 +151,7 @@ namespace apiatshop.Migrations
                     b.ToTable("Order");
                 });
 
-            modelBuilder.Entity("api_at_shop.Repository.Entites.ProductOrderEntity", b =>
+            modelBuilder.Entity("api_at_shop.Repository.Entites.ProductEntity", b =>
                 {
                     b.HasOne("api_at_shop.Repository.Entities.OrderEntity", "Order")
                         .WithMany()
