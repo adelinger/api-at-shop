@@ -6,6 +6,8 @@ using System.Net.Sockets;
 using api_at_shop.Model;
 using api_at_shop.Repository.Entities;
 using api_at_shop.Repository.Entites;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.VisualBasic.FileIO;
 
 namespace api_at_shop.Repository
     {
@@ -24,7 +26,8 @@ namespace api_at_shop.Repository
             modelBuilder.Entity<Currency>(b =>
             {
                 b.HasKey(e => new { e.CurrencyID });
-
+                b.Property(p => p.USDValue).HasPrecision(18, 2);
+                b.Property(p => p.EURValue).HasPrecision(18, 2);
             });
 
             modelBuilder.Entity<OrderEntity>(o =>

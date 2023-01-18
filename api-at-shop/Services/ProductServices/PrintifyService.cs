@@ -217,6 +217,7 @@ namespace api_at_shop.Services.printify
             var defaultImages = GetDefaultImages(item);
             var lowestPriceUsd = item.Variants.Where(v=>v.Is_Enabled == true).OrderBy(p => p.Price).FirstOrDefault().Price;
             var variants = isSingleProduct ? await GetMappedVariants(item.Variants) : null;
+            var defaultVariantID = item.Variants.Find(e => e.Is_Default == true).ID;
 
             var price = await CurrencyService.ConvertUsdToEur(lowestPriceUsd, Currencies);
             return (new Product
@@ -231,7 +232,7 @@ namespace api_at_shop.Services.printify
                 Visible = item.Visible,
                 AvailableColors = availableColors,
                 AvailableSizes = availableOptions.Sizes,
-                FeaturedImageSrc = item.Images?.FirstOrDefault(e => e.Is_Default == true)?.Src,
+                FeaturedImageSrc = defaultImages?.FirstOrDefault()?.Src,
                 Images = GetMappedImages(item),
                 DefaultImages = defaultImages,
                 Variants = variants,
@@ -239,7 +240,7 @@ namespace api_at_shop.Services.printify
                 IsDiscounted = false,
                 lowestPrice = price != 0 ? price : lowestPriceUsd,
                 Currency = price != 0 ? "€" : "$",
-                DefaultVariantID = item.Variants.Find(e => e.Is_Default == true).ID
+                DefaultVariantID = defaultVariantID,
             });
 
         }
