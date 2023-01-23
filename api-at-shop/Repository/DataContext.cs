@@ -26,13 +26,14 @@ namespace api_at_shop.Repository
             modelBuilder.Entity<Currency>(b =>
             {
                 b.HasKey(e => new { e.CurrencyID });
-                b.Property(p => p.USDValue).HasPrecision(18, 2);
-                b.Property(p => p.EURValue).HasPrecision(18, 2);
+                b.Property(p => p.USDValue).HasPrecision(18, 6);
+                b.Property(p => p.EURValue).HasPrecision(18, 6);
             });
 
             modelBuilder.Entity<OrderEntity>(o =>
             {
                 o.HasKey(e => new { e.OrderID });
+                o.Property(e => e.Region).IsRequired(false);
             });
             modelBuilder.Entity<ProductOrderEntity>(o =>
             {

@@ -10,6 +10,7 @@ namespace api_at_shop.Model.Shipping
         public bool send_shipping_notification { get; set; }
         public string external_id { get; set; }
         public string label { get; set; }
+        public string totalPrice { get; set; }
     }
 }
 

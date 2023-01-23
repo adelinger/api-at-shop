@@ -24,6 +24,8 @@ using api_at_shop.DTO.Printify;
 using api_at_shop.Repository.Entities;
 using api_at_shop.Repository;
 using api_at_shop.Repository.Entites;
+using api_at_shop.Services.common.EmailServices;
+using api_at_shop.Model.Email;
 
 namespace api_at_shop.Services.printify
 {
@@ -36,8 +38,9 @@ namespace api_at_shop.Services.printify
         private readonly ICurrencyService CurrencyService;
         private CurrencyDTO[] Currencies;
         private readonly DataContext DataContext;
+        private readonly IEmailService EmailService;
 
-        public PrintifyService(IConfiguration configuration, ICurrencyService currencyService, DataContext dataContext)
+        public PrintifyService(IConfiguration configuration, ICurrencyService currencyService, DataContext dataContext, IEmailService emailService)
         {
             Client = new HttpClient();
             Configuration = configuration;
@@ -48,6 +51,7 @@ namespace api_at_shop.Services.printify
             Client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", TOKEN);
             DataContext = dataContext;
+            EmailService = emailService;
         }
 
         public Task<IProduct> DeleteProductAsync(string id)
@@ -646,6 +650,16 @@ namespace api_at_shop.Services.printify
                     var task = await DataContext.AddAsync<OrderEntity>(mapped);
                     await DataContext.SaveChangesAsync();
                 }
+
+                var guestEmail = new GuestEmail
+                {
+                    Email = "info@autotoni.hr",
+                    FirstName = "AT Classics",
+                    LastName = "Shop",
+                    Subject = "Order Details",
+                    Message = "Thank you for your order. Your order is recieved and we will start preparing it. You will get another email once it's ready and shipped!",
+                };
+                var sendEmail = await EmailService.SendOrderConfirmEmail(OrderDetails, result.ID);
 
                 return result;
             }

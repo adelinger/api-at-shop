@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation</title>
+    <style>
+        /* Add your styles here */
+        /* Add background color */
+        body {
+            background-color: #f2f2f2;
+        }
+        /* Add styles for header */
+        .header {
+            background-color: #424242;
+            padding: 20px;
+            text-align: center;
+        }
+            /* Add styles for logo */
+            .header img {
+                width: 150px;
+                height: auto;
+            }
+            /* Add styles for title */
+            .header h1 {
+                margin: 0;
+                color: #FFF;
+            }
+        /* Add styles for main content */
+        .main-content {
+            background-color: #fff;
+            padding: 20px;
+        }
+        /* Add styles for order details */
+        .order-details {
+            border: 1px solid #424242;
+            padding: 10px;
+            margin-top: 20px;
+        }
+        /* Add styles for footer */
+        .footer {
+            background-color: #424242;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+        }
+        /* Add styles for links */
+        a {
+            color: #ffd600;
+        }
+        /* Add styles for order-number and date */
+        .order-number, .order-date {
+            font-size: 0.8em;
+            color: #424242;
+            font-weight: bold;
+        }
+        /* Add styles for  table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #424242;
+        }
+
+        th {
+            font-weight: bold;
+            text-align: left;
+        }
+        /* Add styles for  buttons */
+        .btn {
+            background-color: #ffd600;
+            color: #424242;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+            .btn:hover {
+                background-color: #FF9700;
+                color: #fff;
+            }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="https://autotoni.hr/pictures/Logo/logo_transparent.png" alt="Logo">
+        <h1>AT Classics Shop</h1>
+    </div>
+    <div class="main-content">
+        <h2>Thank you for your order!</h2>
+        <p class="order-number">Order Number: {orderNumber}</p>
+        <p class="order-date">Order Date:{orderDate} </p>
+        <p>Your order has been received and will be processed as soon as possible.</p>
+        <h3>
+            Order details:
+        </h3>
+        <table>
+            <thead>
+                <tr>
+                    
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {productsTable}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="2">Total</th>
+                    <th>{totalPrice}</th>
+                </tr>
+            </tfoot>
+        </table>
+        <p>If you have any questions, please don't hesitate to contact us.</p>
+        <p>Sincerely,</p>
+        <p>AT Classics Shop Team</p>
+    </div>
+    <div class="footer">
+        <a href="at-classics.com" class="btn">Shop again</a>
+        <p>Copyright ©2022 Auto Toni</p>
+    </div>
+</body>
+</html>

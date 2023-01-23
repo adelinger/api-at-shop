@@ -20,6 +20,8 @@ namespace api_at_shop.DTO.Printify.Shipping
         public string external_id { get; set; }
         [JsonPropertyName("label")]
         public string label { get; set; }
+        [JsonPropertyName("totalPrice")]
+        public string totalPrice { get; set; }
     }
 }
 

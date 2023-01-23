@@ -3,6 +3,8 @@ using api_at_shop.Repository;
 using api_at_shop.Services;
 using api_at_shop.Services.AuthServices;
 using api_at_shop.Services.AuthServices.Common;
+using api_at_shop.Services.common.EmailServices;
+using api_at_shop.Services.EmailServices;
 using api_at_shop.Services.printify;
 using api_at_shop.Services.ProductServices;
 using Microsoft.AspNetCore.Authentication;
@@ -25,6 +27,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 builder.Services.AddScoped<IProductApiService, PrintifyService>();
 builder.Services.AddScoped<ICurrencyService, HnbWebApiService>();
 builder.Services.AddSingleton<IBasicAuthService, BasicAuthService>();
+builder.Services.AddSingleton<IEmailService, EmailService>();
 
 builder.Services.AddCors(options =>
 {

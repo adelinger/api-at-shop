@@ -16,6 +16,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="SendGrid" Version="9.28.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,6 +41,10 @@
     <None Remove="Services\AuthServices\" />
     <None Remove="Services\AuthServices\Common\" />
     <None Remove="Repository\Entites\" />
+    <None Remove="Services\EmailServices\" />
+    <None Remove="Model\Email\" />
+    <None Remove="Services\EmailServices\common\" />
+    <None Remove="SendGrid" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
@@ -59,5 +64,14 @@
     <Folder Include="Services\AuthServices\" />
     <Folder Include="Services\AuthServices\Common\" />
     <Folder Include="Repository\Entites\" />
+    <Folder Include="Services\EmailServices\" />
+    <Folder Include="Model\Email\" />
+    <Folder Include="Services\EmailServices\common\" />
+    <Folder Include="wwwroot\" />
+    <Folder Include="wwwroot\html\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="wwwroot\" />
+    <Content Remove="wwwroot\html\" />
   </ItemGroup>
 </Project>
