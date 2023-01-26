@@ -134,6 +134,23 @@ namespace api_at_shop.Controllers
         }
 
         [HttpPost]
+        [Route("validate-order")]
+        public async Task<ActionResult<IProduct>> OrderValidation([FromBody] ShippingDTO AddressTo)
+        {
+            try
+            {
+                var result = await ProductApiService.IsOrderValid(AddressTo);
+
+                return Ok(new Response { Success = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response { Message = ex.Message, Success = false });
+            }
+
+        }
+
+        [HttpPost]
         [Route("add-tag")]
         public async Task<ActionResult<IProduct>> AddTag(string id, string tag)
         {

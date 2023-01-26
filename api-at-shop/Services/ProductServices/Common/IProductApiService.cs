@@ -18,7 +18,8 @@ namespace api_at_shop.Services
         public Task<Response> RemoveTagAsync(string id, string tag);
         public Task<ProductData> GetFeaturedProducts();
         public Task<ProductData> GetRelatedProducts(string productId, int limit);
-        public Task<Order> MakeNewOrder(IShippingInformation OrderDetails);     
+        public Task<Order> MakeNewOrder(IShippingInformation OrderDetails);
+        public Task<bool> IsOrderValid(IShippingInformation OrderDetails);
     }
 }
 

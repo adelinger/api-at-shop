@@ -607,6 +607,21 @@ namespace api_at_shop.Services.printify
             return euCountries.Contains(country);
         }
 
+        private async Task<int> GetVariantPrice(string productID, int? variantID)
+        {
+            try
+            {
+                var product = await GetProductAsync(productID);
+                var variant = product.Variants.SingleOrDefault(v => v.ID == variantID);
+
+                return variant.Price;
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+        }
+
         public async Task<Order> MakeNewOrder(IShippingInformation OrderDetails)
         {
             try
@@ -690,6 +705,40 @@ namespace api_at_shop.Services.printify
                 ShippingMethod = OrderDetails.shipping_method,
                 TimeStamp = DateTime.UtcNow.AddHours(1),
             };
+        }
+
+        private async Task<bool> IsPriceValid(IShippingInformation OrderDetails)
+        {
+            var shipping = await GetShippingPrice(OrderDetails);
+            dynamic shippingCostsObject = JsonConvert.DeserializeObject<dynamic>(shipping.ToString());
+            int shippingCost = shippingCostsObject[OrderDetails.shipping_method == 1 ? "standard" : "express"];
+            var itemPrices = new List<int>();
+            foreach (var item in OrderDetails.line_items)
+            {
+                itemPrices.Add(await GetVariantPrice(item.Product_id, item.Variant_id));
+            }
+            var totalCost = GetPriceInString(shippingCost + itemPrices.Sum());
+            var orderCost = OrderDetails.totalPrice.Remove(OrderDetails.totalPrice.Length-1);
+            return totalCost == orderCost ? true : false;
+        }
+
+        private static string GetPriceInString(int number)
+        {
+            var str = number.ToString();
+            var resStr = str.Substring(0, str.Length - 2) + "." + str.Substring(str.Length - 2);
+            return resStr;
+        }
+
+        public async Task<bool> IsOrderValid(IShippingInformation OrderDetails)
+        {
+            try
+            {   
+                return await IsPriceValid(OrderDetails); 
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 
