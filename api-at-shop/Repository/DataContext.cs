@@ -26,8 +26,8 @@ namespace api_at_shop.Repository
             modelBuilder.Entity<Currency>(b =>
             {
                 b.HasKey(e => new { e.CurrencyID });
-                b.Property(p => p.USDValue).HasPrecision(18, 6);
-                b.Property(p => p.EURValue).HasPrecision(18, 6);
+                b.Property(p => p.USDValue).HasColumnType("money");
+                b.Property(p => p.EURValue).HasColumnType("money");
             });
 
             modelBuilder.Entity<OrderEntity>(o =>
