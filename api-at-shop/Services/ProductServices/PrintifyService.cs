@@ -26,6 +26,7 @@ using api_at_shop.Repository;
 using api_at_shop.Repository.Entites;
 using api_at_shop.Services.common.EmailServices;
 using api_at_shop.Model.Email;
+using api_at_shop.Utils.Data;
 
 namespace api_at_shop.Services.printify
 {
@@ -163,9 +164,18 @@ namespace api_at_shop.Services.printify
                 if (!string.IsNullOrEmpty(tagFilters) && tagFilters != "undefined")
                 {
                     string[] tagFiltersArray = tagFilters.Split(',');
-                    filtered = filtered.Any()
-                        ? filtered.Where(item => item.Tags.Any(tag => tagFiltersArray.Contains(tag))).ToList()
-                        : product.Data.Where(item => item.Tags.Any(tag => tagFiltersArray.Contains(tag))).ToList();
+                    if(tagFilters.Contains("Other cars"))
+                    {
+                        filtered = filtered.Any()
+                       ? filtered.Where(item => !item.Tags.Any(tag => CarTypes.CarTypesList.Contains(tag))).ToList()
+                       : product.Data.Where(item => !item.Tags.Any(tag => CarTypes.CarTypesList.Contains(tag))).ToList();
+                    }
+                    else
+                    {
+                        filtered = filtered.Any()
+                       ? filtered.Where(item => item.Tags.Any(tag => tagFiltersArray.Contains(tag))).ToList()
+                       : product.Data.Where(item => item.Tags.Any(tag => tagFiltersArray.Contains(tag))).ToList();
+                    }
 
                     if (!filtered.Any())
                     {
@@ -666,14 +676,6 @@ namespace api_at_shop.Services.printify
                     await DataContext.SaveChangesAsync();
                 }
 
-                var guestEmail = new GuestEmail
-                {
-                    Email = "info@autotoni.hr",
-                    FirstName = "AT Classics",
-                    LastName = "Shop",
-                    Subject = "Order Details",
-                    Message = "Thank you for your order. Your order is recieved and we will start preparing it. You will get another email once it's ready and shipped!",
-                };
                 var sendEmail = await EmailService.SendOrderConfirmEmail(OrderDetails, result.ID);
 
                 return result;
@@ -715,11 +717,12 @@ namespace api_at_shop.Services.printify
             var itemPrices = new List<int>();
             foreach (var item in OrderDetails.line_items)
             {
-                itemPrices.Add(await GetVariantPrice(item.Product_id, item.Variant_id));
+                var variantPrice = await GetVariantPrice(item.Product_id, item.Variant_id);
+                itemPrices.Add(item.Quantity * variantPrice);
             }
             var totalCost = GetPriceInString(shippingCost + itemPrices.Sum());
             var orderCost = OrderDetails.totalPrice.Remove(OrderDetails.totalPrice.Length-1);
-            return totalCost == orderCost ? true : false;
+            return AreEqualWithDeviation(totalCost, orderCost, 0.1);
         }
 
         private static string GetPriceInString(int number)
@@ -727,6 +730,24 @@ namespace api_at_shop.Services.printify
             var str = number.ToString();
             var resStr = str.Substring(0, str.Length - 2) + "." + str.Substring(str.Length - 2);
             return resStr;
+        }
+
+        private static bool AreEqualWithDeviation(string a, string b, double deviation)
+        {
+            decimal num1, num2;
+            if (decimal.TryParse(a, System.Globalization.NumberStyles.Number,
+            System.Globalization.CultureInfo.InvariantCulture, out num1) &&
+            decimal.TryParse(b, System.Globalization.NumberStyles.Number,
+            System.Globalization.CultureInfo.InvariantCulture, out num2))
+            {
+                decimal difference = Math.Abs(num1 - num2);
+                decimal maximumDifference = Math.Max(Math.Abs(num1), Math.Abs(num2)) * (decimal)deviation;
+                return difference <= maximumDifference;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public async Task<bool> IsOrderValid(IShippingInformation OrderDetails)

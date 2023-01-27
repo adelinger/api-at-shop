@@ -50,6 +50,7 @@ namespace api_at_shop.Services.EmailServices
                 {
                     productsTable += $"<tr><td>{product.Title}</td><td>{product.Quantity}</td><td>{product.Price}</td></tr>";
                 }
+                productsTable += $"<tr><td>Shipping</td><td>1</td><td>{OrderInfo.shipping_price}</td></tr>";
                 htmlContent = htmlContent.Replace("{productsTable}", productsTable);
                 htmlContent = htmlContent.Replace("{totalPrice}", OrderInfo.totalPrice);
                 var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);

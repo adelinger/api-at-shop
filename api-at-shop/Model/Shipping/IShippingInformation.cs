@@ -11,6 +11,7 @@ namespace api_at_shop.Model.Shipping
         public string external_id { get; set; }
         public string label { get; set; }
         public string totalPrice { get; set; }
+        public string shipping_price { get; set; }
     }
 }
 
