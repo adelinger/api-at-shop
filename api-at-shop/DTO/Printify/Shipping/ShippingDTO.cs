@@ -22,6 +22,8 @@ namespace api_at_shop.DTO.Printify.Shipping
         public string label { get; set; }
         [JsonPropertyName("totalPrice")]
         public string totalPrice { get; set; }
+        [JsonPropertyName("shipping_price")]
+        public string shipping_price { get; set; }
     }
 }
 

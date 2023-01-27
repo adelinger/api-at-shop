@@ -5,6 +5,7 @@ namespace api_at_shop.DTO.Printify
 	{
 		public string ID { get; set; }
 		public bool Success { get; set; }
+		public int TotalPrice { get; set; }
 	}
 }
 

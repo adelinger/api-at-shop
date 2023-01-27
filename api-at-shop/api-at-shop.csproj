@@ -45,6 +45,7 @@
     <None Remove="Model\Email\" />
     <None Remove="Services\EmailServices\common\" />
     <None Remove="SendGrid" />
+    <None Remove="Utils\Data\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
@@ -69,6 +70,7 @@
     <Folder Include="Services\EmailServices\common\" />
     <Folder Include="wwwroot\" />
     <Folder Include="wwwroot\html\" />
+    <Folder Include="Utils\Data\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\" />
