@@ -32,39 +32,48 @@ namespace api_at_shop.Services.ProductServices
             {
                 var offlineCurrencies = await GetOfflineCurrencyAsync();
 
-                if (offlineCurrencies != null && offlineCurrencies.TimeStamp >= DateTime.Now.AddHours(-2))
-                {
-                    var eurCurrency = new CurrencyDTO
-                    {
-                        Currency = "EUR",
-                        Date = offlineCurrencies.TimeStamp.ToString(),
-                        MiddleEchangeRate = offlineCurrencies.EURValue.ToString()
-                    };
-                    var usdCurrency = new CurrencyDTO
-                    {
-                        Currency = "USD",
-                        Date = offlineCurrencies.TimeStamp.ToString(),
-                        MiddleEchangeRate = offlineCurrencies.USDValue.ToString()
-                    };
-
-                    return new CurrencyDTO[] { eurCurrency, usdCurrency };
-                }
-                else
+                if(offlineCurrencies == null || offlineCurrencies.TimeStamp < DateTime.Now.AddHours(-4))
                 {
                     using HttpResponseMessage res = await Client.GetAsync(API_URL);
                     res.EnsureSuccessStatusCode();
 
-
                     var onlineCurrency = await res.Content.ReadFromJsonAsync<CurrencyDTO[]>();
 
                     await AddNewOfflineCurrencAsync(onlineCurrency);
-                    return onlineCurrency;
-                   
+
                 }
+
+                var eurCurrency = new CurrencyDTO
+                {
+                    Currency = "EUR",
+                    Date = offlineCurrencies.TimeStamp.ToString(),
+                    MiddleEchangeRate = offlineCurrencies.EURValue.ToString()
+                };
+                var usdCurrency = new CurrencyDTO
+                {
+                    Currency = "USD",
+                    Date = offlineCurrencies.TimeStamp.ToString(),
+                    MiddleEchangeRate = offlineCurrencies.USDValue.ToString()
+                };
+
+                return new CurrencyDTO[] { eurCurrency, usdCurrency };
+
+
             }
             catch (Exception ex)
             {
-                return null;
+                var eurCurrency = new CurrencyDTO
+                {
+                    Currency = "EUR",
+                    MiddleEchangeRate = "1.00"
+                };
+                var usdCurrency = new CurrencyDTO
+                {
+                    Currency = "USD",
+                    MiddleEchangeRate = "1.00"
+                };
+
+                return new CurrencyDTO[] { eurCurrency, usdCurrency };
             }
            
         }
@@ -79,11 +88,14 @@ namespace api_at_shop.Services.ProductServices
                     Decimal.Parse(GetCurrencyRate("USD", currencies))) * valueToConvert, 2);
                 int converted = (int)calculated;
 
+                if (converted == 0)
+                    return usdValue;
+
                 return converted;
             }
             catch (Exception ex)
             {
-                return 0;
+                return usdValue;
             }
 
         }
@@ -107,7 +119,7 @@ namespace api_at_shop.Services.ProductServices
             {
                 var eurValue = 1;
                 var usdValue = Decimal.Parse(OnlineCurrency.Where(c => c.Currency == "USD").FirstOrDefault().MiddleEchangeRate);
-
+                usdValue = Decimal.Round(usdValue, 6);
                 var toInsert = new Currency() { EURValue = eurValue, USDValue = usdValue, TimeStamp = DateTime.UtcNow.AddHours(1) };
                 var insert = await DataContext.AddAsync(toInsert);
                 await DataContext.SaveChangesAsync();
@@ -121,7 +133,7 @@ namespace api_at_shop.Services.ProductServices
 
         private static string GetCurrencyRate(string currencyName, CurrencyDTO[] currencies)
         {
-            return currencies?.Where(c => c.Currency == currencyName).FirstOrDefault().MiddleEchangeRate.Replace(",", string.Empty);
+            return currencies?.Where(c => c?.Currency == currencyName)?.FirstOrDefault()?.MiddleEchangeRate?.Replace(",", string.Empty);
         }
     }
 }
