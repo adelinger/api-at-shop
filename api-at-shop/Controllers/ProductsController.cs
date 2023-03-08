@@ -124,6 +124,11 @@ namespace api_at_shop.Controllers
             {
                 var result = await ProductApiService.MakeNewOrder(AddressTo);
 
+                //if (result.Success)
+                //{
+                //    var createInvoice = await ProductApiService.CreateInvoiceAsync(AddressTo);
+                //}
+
                 return Ok(result);
             }
             catch (Exception ex)

@@ -15,7 +15,7 @@ namespace api_at_shop.Model
         public bool Visible { get; set; }
         public bool Is_Locked { get; set; }
         public bool IsDiscounted { get; set; }
-        public string? FeaturedImageSrc { get; set; }
+        public string FeaturedImageSrc { get; set; }
         public int lowestPrice { get; set; }
         public string Currency { get; set; }
         public List<ProductImage> Images { get; set; }

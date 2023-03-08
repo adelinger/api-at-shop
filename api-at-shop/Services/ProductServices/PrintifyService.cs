@@ -27,6 +27,7 @@ using api_at_shop.Repository.Entites;
 using api_at_shop.Services.common.EmailServices;
 using api_at_shop.Model.Email;
 using api_at_shop.Utils.Data;
+using System.Globalization;
 
 namespace api_at_shop.Services.printify
 {
@@ -40,6 +41,7 @@ namespace api_at_shop.Services.printify
         private CurrencyDTO[] Currencies;
         private readonly DataContext DataContext;
         private readonly IEmailService EmailService;
+        private readonly string INVOICE_API_URL;
 
         public PrintifyService(IConfiguration configuration, ICurrencyService currencyService, DataContext dataContext, IEmailService emailService)
         {
@@ -48,6 +50,7 @@ namespace api_at_shop.Services.printify
             CurrencyService = currencyService;
             BASE_URL = configuration.GetSection("AppSettings").GetSection("PrintifyApiUrl").Value;
             TOKEN = configuration.GetSection("AppSettings").GetSection("PrintifyToken").Value;
+            INVOICE_API_URL = configuration.GetSection("AppSettings").GetSection("InvoicesBaseUrl").Value;
 
             Client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", TOKEN);
@@ -759,6 +762,73 @@ namespace api_at_shop.Services.printify
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public async Task<string> CreateInvoiceAsync(IShippingInformation OrderDetails)
+        {
+            try
+            {
+
+                var invoice = new Invoice
+                {
+                    Address1 = OrderDetails.address_to.address1,
+                    Address2 = OrderDetails.address_to.address2,
+                    City = OrderDetails.address_to.city,
+                    Country = OrderDetails.address_to.country,
+                    Region = OrderDetails.address_to.region,
+                    Phone = OrderDetails.address_to.phone,
+                    FirstName = OrderDetails.address_to.first_name,
+                    LastName = OrderDetails.address_to.last_name,
+                    InvoiceNumber = OrderDetails.external_id,
+                    Email = OrderDetails.address_to.email,
+                    InvoiceDate = DateTime.UtcNow.AddHours(1).ToShortDateString(),
+                    InvoiceTimeStamp = DateTime.UtcNow.AddHours(1).ToString(),
+                    PaymentType = "Paypal",
+                    Zip = OrderDetails.address_to.zip,
+                    OperatorName = "Webshop",
+                    ShippingPrice = decimal.Parse(OrderDetails.shipping_price.Remove(OrderDetails.shipping_price.Length - 1), CultureInfo.InvariantCulture)
+                };
+
+                foreach (var item in OrderDetails.line_items)
+                {
+                    invoice.ListOfItems = new List<InvoiceItem>();
+                    var price = decimal.Parse(item.Price.Remove(item.Price.Length - 1), CultureInfo.InvariantCulture);
+
+                    invoice.ListOfItems.Add(new InvoiceItem
+                    {
+                        Price = price,
+                        Quantity = item.Quantity,
+                        Title = item.Title
+                    });
+                }
+
+                var serilaizeJson = JsonConvert.SerializeObject(invoice, Formatting.Indented,
+                  new JsonSerializerSettings
+                  {
+                      NullValueHandling = NullValueHandling.Ignore,
+                      ContractResolver = new CamelCasePropertyNamesContractResolver()
+                  });
+
+                var username = "antun";
+                var password = "#/BbgKXp3wYK@M=L";
+                Client = new HttpClient();
+                Client.BaseAddress = new Uri(INVOICE_API_URL);
+                Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                    "Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}")));
+                var content = new StringContent(serilaizeJson.ToString(), Encoding.UTF8, "application/json");
+                using HttpResponseMessage res = await Client.PostAsync(INVOICE_API_URL + "/create-invoice", content);
+                res.EnsureSuccessStatusCode();
+
+                var result = await res.Content.ReadFromJsonAsync<string>();
+
+                var test = res.Content;
+
+                return "hmm";
+            }
+            catch (Exception ex)
+            {
+                return "";
             }
         }
     }
