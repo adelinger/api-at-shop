@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>api_at_shop</RootNamespace>
+    <UserSecretsId>9c187ed7-14d9-48da-9ff9-3533884de10c</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -46,6 +47,7 @@
     <None Remove="Services\EmailServices\common\" />
     <None Remove="SendGrid" />
     <None Remove="Utils\Data\" />
+    <None Remove="api.at-classics.com\wwwroot\api-at-shop.pdb" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
