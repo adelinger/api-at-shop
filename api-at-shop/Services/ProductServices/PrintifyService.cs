@@ -790,9 +790,9 @@ namespace api_at_shop.Services.printify
                     ShippingPrice = decimal.Parse(OrderDetails.shipping_price.Remove(OrderDetails.shipping_price.Length - 1), CultureInfo.InvariantCulture)
                 };
 
+                invoice.ListOfItems = new List<InvoiceItem>();
                 foreach (var item in OrderDetails.line_items)
                 {
-                    invoice.ListOfItems = new List<InvoiceItem>();
                     var price = decimal.Parse(item.Price.Remove(item.Price.Length - 1), CultureInfo.InvariantCulture);
 
                     invoice.ListOfItems.Add(new InvoiceItem
