@@ -151,6 +151,7 @@ namespace api_at_shop.Services.printify
             try
             {
                 var product = await GetProductsAsync();
+                var total = product.Data.Count();
 
                 Currencies = await CurrencyService.GetCurrencies();
 
@@ -182,7 +183,7 @@ namespace api_at_shop.Services.printify
 
                     if (!filtered.Any())
                     {
-                        return new ProductData { Product = mapped, rpp = (int)limit, Total = mapped.Count() };
+                        return new ProductData { Product = mapped, rpp = (int)limit, Total = total };
                     }
                 }
 
@@ -213,12 +214,13 @@ namespace api_at_shop.Services.printify
                     mapped = mapped.OrderByDescending(item => DateTime.Parse(item.Created_At)).ToList();
                 }
 
+                total = mapped.Count;
 
                 if (limit != null)
                 {
                     mapped = mapped.Take((int)limit).ToList();
                 }
-                return new ProductData { Product = mapped, rpp = (int)limit, Total = mapped.Count() };
+                return new ProductData { Product = mapped, rpp = (int)limit, Total = total };
             }
             catch (Exception ex)
             {
