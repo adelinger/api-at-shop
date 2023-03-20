@@ -177,8 +177,8 @@ namespace api_at_shop.Services.printify
                     else
                     {
                         filtered = filtered.Any()
-                       ? filtered.Where(item => item.Tags.Any(tag => tagFiltersArray.Contains(tag))).ToList()
-                       : product.Data.Where(item => item.Tags.Any(tag => tagFiltersArray.Contains(tag))).ToList();
+     ? filtered.Where(item => tagFiltersArray.All(tag => item.Tags.Contains(tag))).ToList()
+     : product.Data.Where(item => tagFiltersArray.All(tag => item.Tags.Contains(tag))).ToList();
                     }
 
                     if (!filtered.Any())
