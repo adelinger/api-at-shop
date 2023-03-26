@@ -15,6 +15,7 @@ namespace api_at_shop.Repository
     {
         public DbSet<OrderEntity> Order { get; set; }
         public DbSet<ProductOrderEntity> Product { get; set; }
+        public DbSet<ProductTranslationEntity> ProductTranslations { get; set; }
 
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
@@ -40,6 +41,10 @@ namespace api_at_shop.Repository
                 o.HasKey(e => new { e.ProductOrderID });
                 o.Property(e => e.Sku).IsRequired(false);
             });
+            modelBuilder.Entity<ProductTranslationEntity>(p => {
+                p.HasKey(product => new { product.ProductTranslationID });
+                p.Property(p=>p.ProductTranslationID).ValueGeneratedOnAdd();
+            }); 
 
         }
         public DbSet<Currency> Currencies => Set<Currency>();
