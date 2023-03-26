@@ -2,7 +2,9 @@
 using api_at_shop.Auth;
 using api_at_shop.DTO.Printify.Shipping;
 using api_at_shop.Model;
+using api_at_shop.Model.Products;
 using api_at_shop.Services;
+using api_at_shop.Services.ProductServices.Common;
 using api_at_shop.Utils.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -19,27 +21,29 @@ namespace api_at_shop.Controllers
     public class ProductsController : Controller
     {
         private IProductApiService ProductApiService;
+        private ITranslationService TranslationService;
 
-        public ProductsController(IProductApiService productApiService)
+        public ProductsController(IProductApiService productApiService, ITranslationService translationService)
         {
             ProductApiService = productApiService;
+            TranslationService = translationService;
         }
 
         // GET: api/values
         [EnableCors("AllowAll")]
         [HttpGet]
         public async Task<ActionResult<IProduct>> Get(string categoryFilter, string searchFilter, string sortOrder,
-            string tagFilters, string type, int? limit = null)
+            string tagFilters, string type, string languageCulture = null, int? limit = null)
         {
             try
                 {
                 if(!string.IsNullOrEmpty(type) && type == "featured")
                 {
-                    var featuredProducts = await ProductApiService.GetFeaturedProducts();
+                    var featuredProducts = await ProductApiService.GetFeaturedProducts(languageCulture);
                     return Ok(featuredProducts);
                 }
                 var products = await ProductApiService.GetProductsAsync(categoryFilter, searchFilter, limit ?? ProductConstants.DefaultRecordPerPage,
-                    sortOrder, tagFilters);
+                    sortOrder, tagFilters, languageCulture);
                 return Ok(products);
 
             }
@@ -51,11 +55,11 @@ namespace api_at_shop.Controllers
 
         [HttpGet]
         [Route("related-products")]
-        public async Task<ActionResult<IProduct>> GetRelatedProducts(string productId, int limit)
+        public async Task<ActionResult<IProduct>> GetRelatedProducts(string productId, int limit, string languageCulture = null)
         {
             try
             {
-                var relatedProducts = await ProductApiService.GetRelatedProducts(productId, limit);
+                var relatedProducts = await ProductApiService.GetRelatedProducts(productId, limit, languageCulture);
 
                 return Ok(relatedProducts);
 
@@ -68,11 +72,11 @@ namespace api_at_shop.Controllers
 
         //GET api/values/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<IProduct>> GetProduct(string id)
+        public async Task<ActionResult<IProduct>> GetProduct(string id, string languageCulture = null)
         {
             try
             {
-                var product = await ProductApiService.GetProductAsync(id);
+                var product = await ProductApiService.GetProductAsync(id, languageCulture);
 
                 return Ok(product);
             }
@@ -85,11 +89,11 @@ namespace api_at_shop.Controllers
 
         [HttpGet]
         [Route("featured-products")]
-        public async Task<ActionResult<IProduct>> GetFeaturedProducts()
+        public async Task<ActionResult<IProduct>> GetFeaturedProducts(string languageCulture = null)
         {
             try
             {
-                var products = await ProductApiService.GetFeaturedProducts();
+                var products = await ProductApiService.GetFeaturedProducts(languageCulture);
                 return Ok(products);
 
             }
@@ -124,10 +128,10 @@ namespace api_at_shop.Controllers
             {
                 var result = await ProductApiService.MakeNewOrder(AddressTo);
 
-                //if (result.Success)
-                //{
-                //    var createInvoice = await ProductApiService.CreateInvoiceAsync(AddressTo);
-                //}
+                if (result.Success)
+                {
+                    var createInvoice = await ProductApiService.CreateInvoiceAsync(AddressTo);
+                }
 
                 return Ok(result);
             }
@@ -196,20 +200,19 @@ namespace api_at_shop.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody] string value)
+        [Route("add-translation")]
+        public async Task<IActionResult> AddProductTranslation([FromBody] ProductTranslation ProductTranslation)
         {
-        }
+            try
+            {
+                var task = await TranslationService.AddProductTranslationAsycn(ProductTranslation);
 
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+                return Ok(task);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response { Message = ex.Message, Success = false });
+            }
         }
     }
 }

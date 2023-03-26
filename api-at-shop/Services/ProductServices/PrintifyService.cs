@@ -28,6 +28,7 @@ using api_at_shop.Services.common.EmailServices;
 using api_at_shop.Model.Email;
 using api_at_shop.Utils.Data;
 using System.Globalization;
+using api_at_shop.Services.ProductServices.Common;
 
 namespace api_at_shop.Services.printify
 {
@@ -42,8 +43,9 @@ namespace api_at_shop.Services.printify
         private readonly DataContext DataContext;
         private readonly IEmailService EmailService;
         private readonly string INVOICE_API_URL;
+        private readonly ITranslationService TranslationService;
 
-        public PrintifyService(IConfiguration configuration, ICurrencyService currencyService, DataContext dataContext, IEmailService emailService)
+        public PrintifyService(IConfiguration configuration, ICurrencyService currencyService, DataContext dataContext, IEmailService emailService, ITranslationService translationService)
         {
             Client = new HttpClient();
             Configuration = configuration;
@@ -56,6 +58,7 @@ namespace api_at_shop.Services.printify
             new AuthenticationHeaderValue("Bearer", TOKEN);
             DataContext = dataContext;
             EmailService = emailService;
+            TranslationService = translationService;
         }
 
         public Task<IProduct> DeleteProductAsync(string id)
@@ -63,7 +66,7 @@ namespace api_at_shop.Services.printify
             throw new NotImplementedException();
         }
 
-        public async Task<IProduct> GetProductAsync(string id)
+        public async Task<IProduct> GetProductAsync(string id, string languageCulture = null)
         {
             using HttpResponseMessage res = await Client.GetAsync(BASE_URL + "/products/"+id+".json");
             res.EnsureSuccessStatusCode();
@@ -71,10 +74,10 @@ namespace api_at_shop.Services.printify
             var availableOptions = GetAvailableOptions(product);
             Currencies = await CurrencyService.GetCurrencies();
 
-            return await GetMappedProductAsync(product, isSingleProduct:true);
+            return await GetMappedProductAsync(product, isSingleProduct:true, languageCulture:languageCulture);
         }
 
-        public async Task<ProductData> GetFeaturedProducts()
+        public async Task<ProductData> GetFeaturedProducts(string languageCulture)
         {
             try
             {
@@ -89,7 +92,7 @@ namespace api_at_shop.Services.printify
 
                 foreach (var item in filtered)
                 {
-                    mapped.Add(await GetMappedProductAsync(item));
+                    mapped.Add(await GetMappedProductAsync(item, false, languageCulture));
                 }
 
                 return new ProductData { Product = mapped, rpp = (int)limit, Total = mapped.Count() };
@@ -100,7 +103,7 @@ namespace api_at_shop.Services.printify
             }
         }
 
-        public async Task<ProductData> GetRelatedProducts(string productId, int limit)
+        public async Task<ProductData> GetRelatedProducts(string productId, int limit, string languageCulture)
         {
             try
             {
@@ -115,7 +118,7 @@ namespace api_at_shop.Services.printify
 
                 foreach (var item in relatedProduct)
                 {
-                    mapped.Add(await GetMappedProductAsync(item));
+                    mapped.Add(await GetMappedProductAsync(item, false, languageCulture));
                 }
 
                 return new ProductData { Product = mapped,
@@ -146,7 +149,7 @@ namespace api_at_shop.Services.printify
         }
 
         public async Task<ProductData> GetProductsAsync(string categoryFilter="", string searchFilter="",
-            int? limit = null, string sortOrder="", string tagFilters = "")
+            int? limit = null, string sortOrder="", string tagFilters = "", string languageCulture = null)
         {
             try
             {
@@ -195,7 +198,7 @@ namespace api_at_shop.Services.printify
                     possibleOptions.AddRange(from variant in item.Variants
                                              select variant.Options);
 
-                    mapped.Add(await GetMappedProductAsync(item));
+                    mapped.Add(await GetMappedProductAsync(item, false, languageCulture));
                 }
 
                 if (!string.IsNullOrEmpty(searchFilter))
@@ -229,7 +232,7 @@ namespace api_at_shop.Services.printify
             
         }
 
-        private async Task<IProduct> GetMappedProductAsync(PrintifyData item, bool isSingleProduct = false)
+        private async Task<IProduct> GetMappedProductAsync(PrintifyData item, bool isSingleProduct = false, string languageCulture = null)
         {
             var availableOptions = GetAvailableOptions(item);
             var availableColors = availableOptions.Colors;
@@ -238,15 +241,31 @@ namespace api_at_shop.Services.printify
             var variants = isSingleProduct ? await GetMappedVariants(item.Variants) : null;
             var defaultVariantID = item.Variants.Find(e => e.Is_Default == true).ID;
 
+            var translated = new ProductTranslation();
+            if(languageCulture != null)
+            {
+                try
+                {
+                    translated = await TranslationService.GetProductTranslationAsync(item.ID, languageCulture);
+                }
+                catch (Exception ex)
+                {
+                    translated = null;
+                }
+            }
+
+            var title = languageCulture != null && translated != null ? translated.ProductTitle : item.Title;
+            var description = languageCulture != null && translated != null ? translated.ProductDescription : item.Description;
+
             var price = await CurrencyService.ConvertUsdToEur(lowestPriceUsd, Currencies);
             return (new Product
             {
                 ID = item.ID,
                 Created_At = item.Created_At,
-                Description = item.Description,
+                Description = description,
                 Is_Locked = item.Is_Locked,
                 Tags = item.Tags,
-                Title = item.Title,
+                Title = title,
                 Updated_At = item.Updated_At,
                 Visible = item.Visible,
                 AvailableColors = availableColors,

@@ -7,6 +7,7 @@ using api_at_shop.Services.common.EmailServices;
 using api_at_shop.Services.EmailServices;
 using api_at_shop.Services.printify;
 using api_at_shop.Services.ProductServices;
+using api_at_shop.Services.ProductServices.Common;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,6 +29,7 @@ builder.Services.AddScoped<IProductApiService, PrintifyService>();
 builder.Services.AddScoped<ICurrencyService, HnbWebApiService>();
 builder.Services.AddSingleton<IBasicAuthService, BasicAuthService>();
 builder.Services.AddSingleton<IEmailService, EmailService>();
+builder.Services.AddScoped<ITranslationService, TranslationService>();
 
 builder.Services.AddCors(options =>
 {
