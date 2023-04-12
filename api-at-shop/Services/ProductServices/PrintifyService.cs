@@ -707,7 +707,7 @@ namespace api_at_shop.Services.printify
 
                 var sendEmail = await EmailService.SendOrderConfirmEmail(OrderDetails, result.ID);
 
-                //OrderDetails.address_to.email = "antun994@gmail.com";
+                OrderDetails.address_to.email = "antun994@gmail.com";
                 var sendInvoice = await CreateInvoiceAsync(OrderDetails);
 
                 return result;
@@ -849,11 +849,7 @@ namespace api_at_shop.Services.printify
                 using HttpResponseMessage res = await Client.PostAsync(INVOICE_API_URL + "/create-invoice", content);
                 res.EnsureSuccessStatusCode();
 
-                var result = await res.Content.ReadFromJsonAsync<string>();
-
-                var test = res.Content;
-
-                return res.Content.ToString();
+                return await res.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {
