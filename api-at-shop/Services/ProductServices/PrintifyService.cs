@@ -29,6 +29,7 @@ using api_at_shop.Model.Email;
 using api_at_shop.Utils.Data;
 using System.Globalization;
 using api_at_shop.Services.ProductServices.Common;
+using Microsoft.Extensions.Configuration;
 
 namespace api_at_shop.Services.printify
 {
@@ -147,7 +148,7 @@ namespace api_at_shop.Services.printify
             res.EnsureSuccessStatusCode();
 
             var product = await res.Content.ReadFromJsonAsync<PrintifyProductDTO>();
-            product.Data = product.Data.Where(p => p.Is_Locked == false).ToList();
+            //product.Data = product.Data.Where(p => p.Is_Locked == false).ToList();
 
             return product;
         }
@@ -706,6 +707,9 @@ namespace api_at_shop.Services.printify
 
                 var sendEmail = await EmailService.SendOrderConfirmEmail(OrderDetails, result.ID);
 
+                //OrderDetails.address_to.email = "antun994@gmail.com";
+                var sendInvoice = await CreateInvoiceAsync(OrderDetails);
+
                 return result;
             }
             catch (Exception ex)
@@ -835,8 +839,8 @@ namespace api_at_shop.Services.printify
                       ContractResolver = new CamelCasePropertyNamesContractResolver()
                   });
 
-                var username = "antun";
-                var password = "#/BbgKXp3wYK@M=L";
+                var username = Configuration.GetSection("AppSettings").GetSection("InvoicesApiUsername").Value;
+                var password = Configuration.GetSection("AppSettings").GetSection("InvoicesApiPassword").Value;
                 Client = new HttpClient();
                 Client.BaseAddress = new Uri(INVOICE_API_URL);
                 Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
@@ -849,7 +853,7 @@ namespace api_at_shop.Services.printify
 
                 var test = res.Content;
 
-                return "hmm";
+                return res.Content.ToString();
             }
             catch (Exception ex)
             {

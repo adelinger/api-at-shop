@@ -19,8 +19,5 @@ namespace api_at_shop.Controllers
         {
             return Ok("At-classics api");
         }
-
-      
     }
 }
-
