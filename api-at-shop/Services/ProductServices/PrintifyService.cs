@@ -82,6 +82,7 @@ namespace api_at_shop.Services.printify
             try
             {
                 var product = await GetProductsAsync();
+                product.Data = product.Data.Where(p => p.Is_Locked == false).ToList();
 
                 Currencies = await CurrencyService.GetCurrencies();
 
@@ -145,7 +146,10 @@ namespace api_at_shop.Services.printify
             using HttpResponseMessage res = await Client.GetAsync(BASE_URL + "/products.json");
             res.EnsureSuccessStatusCode();
 
-            return await res.Content.ReadFromJsonAsync<PrintifyProductDTO>(); ;
+            var product = await res.Content.ReadFromJsonAsync<PrintifyProductDTO>();
+            product.Data = product.Data.Where(p => p.Is_Locked == false).ToList();
+
+            return product;
         }
 
         public async Task<ProductData> GetProductsAsync(string categoryFilter="", string searchFilter="",
