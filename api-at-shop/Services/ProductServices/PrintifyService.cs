@@ -674,14 +674,13 @@ namespace api_at_shop.Services.printify
                        ContractResolver = new CamelCasePropertyNamesContractResolver()
                    });
 
-                //var content = new StringContent(serilaizeJson.ToString(), Encoding.UTF8, "application/json");
-                //using HttpResponseMessage res = await Client.PostAsync(BASE_URL + "/orders.json", content);
-                //res.EnsureSuccessStatusCode();
+                var content = new StringContent(serilaizeJson.ToString(), Encoding.UTF8, "application/json");
+                using HttpResponseMessage res = await Client.PostAsync(BASE_URL + "/orders.json", content);
+                res.EnsureSuccessStatusCode();
 
-                //var result = await res.Content.ReadFromJsonAsync<Order>();
-                //result.Success = res.StatusCode == System.Net.HttpStatusCode.OK ? true : false;
-                var result = new Order { Success = true, ID = "testid2131" };
-                //TODO: test this without sending order to printify
+                var result = await res.Content.ReadFromJsonAsync<Order>();
+                result.Success = res.StatusCode == System.Net.HttpStatusCode.OK ? true : false;
+
 
                 if (result.Success)
                 {
