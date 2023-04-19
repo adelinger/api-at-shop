@@ -707,6 +707,7 @@ namespace api_at_shop.Services.printify
 
                 var sendEmail = await EmailService.SendOrderConfirmEmail(OrderDetails, result.ID);
 
+                //TODO: remove fixed email when invoice sending solution is resolved
                 OrderDetails.address_to.email = "antun994@gmail.com";
                 var sendInvoice = await CreateInvoiceAsync(OrderDetails);
 
@@ -811,7 +812,7 @@ namespace api_at_shop.Services.printify
                     LastName = OrderDetails.address_to.last_name,
                     InvoiceNumber = OrderDetails.external_id,
                     Email = OrderDetails.address_to.email,
-                    InvoiceDate = DateTime.UtcNow.AddHours(1).ToShortDateString(),
+                    InvoiceDate = DateTime.UtcNow.AddHours(1),
                     InvoiceTimeStamp = DateTime.UtcNow.AddHours(1).ToString(),
                     PaymentType = "Paypal",
                     Zip = OrderDetails.address_to.zip,
