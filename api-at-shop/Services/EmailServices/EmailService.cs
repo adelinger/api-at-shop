@@ -4,6 +4,7 @@ using api_at_shop.Model;
 using api_at_shop.Model.Email;
 using api_at_shop.Model.Shipping;
 using api_at_shop.Services.common.EmailServices;
+using Microsoft.Extensions.Configuration;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using Response = api_at_shop.Model.Response;
@@ -12,9 +13,12 @@ namespace api_at_shop.Services.EmailServices
 {
 	public class EmailService :IEmailService
 	{
-		public EmailService()
-		{
-		}
+        private readonly IConfiguration Configuration;
+
+        public EmailService(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
 
         public async Task<Response> SendEmailAsync(GuestEmail EmailFrom, AdminEmail EmailTo)
         {
@@ -32,8 +36,7 @@ namespace api_at_shop.Services.EmailServices
             try
             {
 
-                //var apiKey = Environment.GetEnvironmentVariable("NAME_OF_THE_ENVIRONMENT_VARIABLE_FOR_YOUR_SENDGRID_KEY");
-                var apiKey = "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";
+                var apiKey = configuration.GetSection("AppSettings").GetSection("SendGridApiKey").Value;
                 var client = new SendGridClient(apiKey);
                 var from = new EmailAddress("info@autotoni.hr", "AT Classics Shop");
                 var subject = "Order confirmation.";
