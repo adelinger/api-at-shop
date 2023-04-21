@@ -36,7 +36,7 @@ namespace api_at_shop.Services.EmailServices
             try
             {
 
-                var apiKey = configuration.GetSection("AppSettings").GetSection("SendGridApiKey").Value;
+                var apiKey = Configuration.GetSection("AppSettings").GetSection("SendGridApiKey").Value;
                 var client = new SendGridClient(apiKey);
                 var from = new EmailAddress("info@autotoni.hr", "AT Classics Shop");
                 var subject = "Order confirmation.";
